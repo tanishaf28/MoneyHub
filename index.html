@@ -599,6 +599,7 @@ select.field-inp{cursor:pointer;}
 .lm-apply-btn{width:100%;background:var(--accent);color:white;border:none;border-radius:var(--r-pill);padding:10px;font-family:var(--fi);font-size:13px;font-weight:600;cursor:pointer;margin-top:16px;transition:background 0.12s;}
 .lm-apply-btn:hover{background:var(--accent-mid);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -648,7 +649,7 @@ select.field-inp{cursor:pointer;}
       </div>
       <!-- SIGN UP -->
       <div class="lform-panel" id="panel-signup">
-        <div class="form-header"><h1>Create your account</h1><p>Start your 14-day free trial — no credit card required</p></div>
+        <div class="form-header"><h1>Create your account</h1><p>Start your 30-day free trial : no credit card required</p></div>
         <div class="lfield-group">
           <div class="lfield-row"><div class="lfield"><label>First name</label><input id="signup-first" type="text" placeholder="Alex"></div><div class="lfield"><label>Last name</label><input id="signup-last" type="text" placeholder="Morgan"></div></div>
           <div class="lfield"><label>Email address</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
@@ -789,7 +790,7 @@ select.field-inp{cursor:pointer;}
       <div class="nav-item" data-page="income"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 5 5 12"/></svg>Income</div>
       <div class="nav-item" data-page="expenses"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 12 12 19 19 12"/></svg>Expenses</div>
       <div class="nav-item" data-page="transactions"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>All transactions<span class="nav-badge" id="tx-count">6</span></div>
-      <div class="sb-section">Reports</div>
+      <div class="sb-section" id="sb-reports-label">Reports</div>
       <div class="nav-item" data-page="analytics"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
       <div class="nav-item" data-page="pnl"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Content P&amp;L</div>
       <div class="nav-item" data-page="health"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health Score</div>
@@ -879,7 +880,7 @@ select.field-inp{cursor:pointer;}
 
     <!-- ANALYTICS -->
     <div id="page-analytics" class="page" style="display:none;">
-      <div class="topbar"><div class="tb-left"><div class="tb-title">Analytics</div><div class="tb-sub">Financial patterns</div></div><div class="tb-right"><div class="avatar" id="app-avatar-3">AX</div></div></div>
+      <div class="topbar"><div class="tb-left"><div class="tb-title" id="ttl-analytics">Analytics</div><div class="tb-sub" id="sub-analytics">Financial patterns</div></div><div class="tb-right"><div class="avatar" id="app-avatar-3">AX</div></div></div>
       <div class="content">
         <div class="metrics" id="analytics-metrics">
           <div class="mc"><div class="mc-label">6-month income</div><div class="mc-val" id="an-income">—</div><div class="mc-sub up" id="an-income-ch">—</div></div>
@@ -888,14 +889,14 @@ select.field-inp{cursor:pointer;}
         </div>
         <div class="g2">
           <div class="card"><div class="card-head"><div class="card-title">Income vs expenses</div></div><div class="card-body"><div style="position:relative;height:160px;"><canvas id="barChart"></canvas></div><div style="display:flex;gap:14px;margin-top:10px;"><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--s5);"><div style="width:10px;height:10px;background:#1a6b3c;border-radius:2px;"></div>Income</div><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--s5);"><div style="width:10px;height:10px;background:#c0392b;border-radius:2px;"></div>Expenses</div></div></div></div>
-          <div class="card"><div class="card-head"><div class="card-title">Business vs personal</div></div><div class="card-body"><div class="prog"><div class="prog-row"><span class="prog-label">Business</span><span class="prog-value">$890 · 38%</span></div><div class="prog-track"><div class="prog-bar" style="width:38%;background:var(--blue);"></div></div></div><div class="prog"><div class="prog-row"><span class="prog-label">Personal</span><span class="prog-value">$1,420 · 62%</span></div><div class="prog-track"><div class="prog-bar" style="width:62%;background:var(--s3);"></div></div></div><div class="insight"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span>$890 in business expenses may be potentially deductible. Check local tax rules before filing.</span></div></div></div>
+          <div class="card"><div class="card-head"><div class="card-title">Business vs personal</div></div><div class="card-body"><div class="prog"><div class="prog-row"><span class="prog-label">Business</span><span class="prog-value" id="an-biz-val">—</span></div><div class="prog-track"><div class="prog-bar" id="an-biz-bar" style="width:0%;background:var(--blue);"></div></div></div><div class="prog"><div class="prog-row"><span class="prog-label">Personal</span><span class="prog-value" id="an-per-val">—</span></div><div class="prog-track"><div class="prog-bar" id="an-per-bar" style="width:0%;background:var(--s3);"></div></div></div><div class="insight"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span id="an-biz-insight">—</span></div></div></div>
         </div>
         <div class="card"><div class="card-head"><div class="card-title">Platform performance — last 3 months</div></div><div class="card-body"><div style="position:relative;height:220px;"><canvas id="platformChart"></canvas></div></div></div>
       </div>
     </div>
 
     <div id="page-market" class="page" style="display:none;">
-      <div class="topbar"><div class="tb-left"><div class="tb-title">Market plans</div><div class="tb-sub">Pick the right plan for your creator finance workflow</div></div><div class="tb-right"><div class="avatar" id="app-avatar-9">AX</div></div></div>
+      <div class="topbar"><div class="tb-left"><div class="tb-title" id="ttl-market">Market plans</div><div class="tb-sub" id="sub-market">Pick the right plan for your creator finance workflow</div></div><div class="tb-right"><div class="avatar" id="app-avatar-9">AX</div></div></div>
       <div class="content">
         <div class="card" style="margin-bottom:12px;background:linear-gradient(140deg,var(--accent-soft),var(--white));">
           <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -939,7 +940,7 @@ select.field-inp{cursor:pointer;}
     </div>
 
     <div id="page-feedback" class="page" style="display:none;">
-      <div class="topbar"><div class="tb-left"><div class="tb-title">Feedback &amp; support</div><div class="tb-sub">Your notes are saved locally for this prototype</div></div><div class="tb-right"><div class="avatar" id="app-avatar-10">AX</div></div></div>
+      <div class="topbar"><div class="tb-left"><div class="tb-title" id="ttl-feedback">Feedback &amp; support</div><div class="tb-sub" id="sub-feedback">Your notes are saved locally for this prototype</div></div><div class="tb-right"><div class="avatar" id="app-avatar-10">AX</div></div></div>
       <div class="content">
         <div class="card" style="margin-bottom:12px;">
           <div class="card-head"><div class="card-title">Send feedback</div></div>
@@ -958,12 +959,12 @@ select.field-inp{cursor:pointer;}
 
     <!-- TAX -->
     <div id="page-tax" class="page" style="display:none;">
-      <div class="topbar"><div class="tb-left"><div class="tb-title">Tax report</div><div class="tb-sub">2025 fiscal year · Auto-generated</div></div><div class="tb-right"><div class="avatar" id="app-avatar-4">AX</div></div></div>
+      <div class="topbar"><div class="tb-left"><div class="tb-title" id="ttl-tax">Tax report</div><div class="tb-sub" id="sub-tax">2025 fiscal year · Auto-generated</div></div><div class="tb-right"><div class="avatar" id="app-avatar-4">AX</div></div></div>
       <div class="content">
         <div class="metrics">
           <div class="mc"><div class="mc-label">Total income (YTD)</div><div class="mc-val" id="tax-income">—</div><div class="mc-sub up">Across 4 platforms</div></div>
-          <div class="mc"><div class="mc-label">Potential deductible expenses</div><div class="mc-val">$890</div><div class="mc-sub nu">Estimate only</div></div>
-          <div class="mc dark"><div class="mc-label">Net taxable income</div><div class="mc-val">$5,950</div><div class="mc-sub dn">Estimated after deductions</div></div>
+          <div class="mc"><div class="mc-label">Potential deductible expenses</div><div class="mc-val" id="tax-deductible">—</div><div class="mc-sub nu">Estimate only</div></div>
+          <div class="mc dark"><div class="mc-label">Net taxable income</div><div class="mc-val" id="tax-net">—</div><div class="mc-sub dn">Estimated after deductions</div></div>
         </div>
         <div class="card" style="margin-bottom:12px;">
           <div class="card-head"><div class="card-title">Potential deductible expenses</div><span class="card-link">Auto-tagged estimate</span></div>
@@ -1001,7 +1002,7 @@ select.field-inp{cursor:pointer;}
     <!-- CONTENT P&L PAGE -->
     <div id="page-pnl" class="page" style="display:none;">
       <div class="topbar">
-        <div class="tb-left"><div class="tb-title">Content P&L</div><div class="tb-sub">Profit & loss per piece of content</div></div>
+        <div class="tb-left"><div class="tb-title" id="ttl-pnl">Content P&amp;L</div><div class="tb-sub" id="sub-pnl">Profit &amp; loss per piece of content</div></div>
         <div class="tb-right"><button class="btn-primary" onclick="openPLForm()">+ Add content</button><div class="avatar" id="app-avatar-7">AX</div></div>
       </div>
       <div class="content">
@@ -1045,7 +1046,7 @@ select.field-inp{cursor:pointer;}
     <!-- HEALTH SCORE PAGE -->
     <div id="page-health" class="page" style="display:none;">
       <div class="topbar">
-        <div class="tb-left"><div class="tb-title">Financial Health Score</div><div class="tb-sub">Your creator financial stability</div></div>
+        <div class="tb-left"><div class="tb-title" id="ttl-health">Financial Health Score</div><div class="tb-sub" id="sub-health">Your creator financial stability</div></div>
         <div class="tb-right"><button class="btn-secondary" onclick="renderHealthPage()">Recalculate</button><div class="avatar" id="app-avatar-8">AX</div></div>
       </div>
       <div class="content">
@@ -1154,16 +1155,37 @@ const LANG_LOCALE = {en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',ja:'ja-JP',ar:'
 const CURR_RATES  = {USD:1,EUR:0.92,GBP:0.79,CAD:1.36,JPY:149.5,AED:3.67};
 const CURR_SYMBOL = {USD:'$',EUR:'€',GBP:'£',CAD:'C$',JPY:'¥',AED:'د.إ'};
 const LANG_LABELS  = {en:'EN',fr:'FR',es:'ES',de:'DE',ja:'JA',ar:'AR'};
+const SUPABASE_URL = 'https://fsjtihhieprlfsduyuwo.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzanRpaGhpZXBybGZzZHV5dXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1NDE3NTksImV4cCI6MjA4OTExNzc1OX0.QXJbsaBydzQJ8mDN2mg1SLHd9rQ43WQ3BdLF_YRC_gc';
+const SUPABASE_TX_TABLE = 'transactions';
+const SUPABASE_PREF_TABLE = 'user_preferences';
+const SUPABASE_FEEDBACK_TABLE = 'feedback';
+const sbClient=(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 const I18N = {
-  en:{dashboard:'Dashboard',income:'Income',expenses:'Expenses',transactions:'All transactions',analytics:'Analytics',tax:'Tax report',newTx:'New transaction',addIncome:'Add income',addExpense:'Add expense',totalIncome:'Total income',totalExpenses:'Total expenses',netProfit:'Net profit'},
-  fr:{dashboard:'Tableau de bord',income:'Revenus',expenses:'Dépenses',transactions:'Toutes les transactions',analytics:'Analytique',tax:'Rapport fiscal',newTx:'Nouvelle transaction',addIncome:'Ajouter un revenu',addExpense:'Ajouter une dépense',totalIncome:'Revenu total',totalExpenses:'Dépenses totales',netProfit:'Bénéfice net'},
-  es:{dashboard:'Panel',income:'Ingresos',expenses:'Gastos',transactions:'Todas las transacciones',analytics:'Analítica',tax:'Informe fiscal',newTx:'Nueva transacción',addIncome:'Añadir ingreso',addExpense:'Añadir gasto',totalIncome:'Ingresos totales',totalExpenses:'Gastos totales',netProfit:'Beneficio neto'},
-  de:{dashboard:'Dashboard',income:'Einnahmen',expenses:'Ausgaben',transactions:'Alle Transaktionen',analytics:'Analytik',tax:'Steuerbericht',newTx:'Neue Transaktion',addIncome:'Einnahme hinzufügen',addExpense:'Ausgabe hinzufügen',totalIncome:'Gesamteinnahmen',totalExpenses:'Gesamtausgaben',netProfit:'Nettogewinn'},
-  ja:{dashboard:'ダッシュボード',income:'収入',expenses:'支出',transactions:'すべての取引',analytics:'分析',tax:'税務報告',newTx:'新しい取引',addIncome:'収入を追加',addExpense:'支出を追加',totalIncome:'総収入',totalExpenses:'総支出',netProfit:'純利益'},
-  ar:{dashboard:'لوحة القيادة',income:'الدخل',expenses:'المصروفات',transactions:'كل المعاملات',analytics:'التحليلات',tax:'تقرير ضريبي',newTx:'معاملة جديدة',addIncome:'إضافة دخل',addExpense:'إضافة مصروف',totalIncome:'إجمالي الدخل',totalExpenses:'إجمالي المصروفات',netProfit:'صافي الربح'}
+  en:{dashboard:'Dashboard',income:'Income',expenses:'Expenses',transactions:'All transactions',analytics:'Analytics',tax:'Tax report',newTx:'New transaction',addIncome:'Add income',addExpense:'Add expense',totalIncome:'Total income',totalExpenses:'Total expenses',netProfit:'Net profit',reports:'Reports',pnl:'Content P&L',health:'Health Score',market:'Market plans',feedback:'Feedback & support',financialPatterns:'Financial patterns',pnlSub:'Profit & loss per piece of content',healthSub:'Your creator financial stability',marketSub:'Pick the right plan for your creator finance workflow',feedbackSub:'Your notes are saved locally for this prototype',taxSub:'2025 fiscal year · Auto-generated',logout:'Logout',appTitle:'MoneyHub Dashboard',monthly:'Monthly',annual:'Annual',thisMonth:'This month',lastMonth:'Last month',monthlyIncomeLabel:'Monthly income',monthlyExpensesLabel:'Monthly expenses',monthlyNetLabel:'Monthly net',annualIncomeLabel:'Annual income',annualExpensesLabel:'Annual expenses',annualNetLabel:'Annual net',vsLastMonth:'vs last month',incomeVsExpenses:'Income vs expenses',financialHealthScore:'Financial Health Score',fullReport:'Full report ->',recentExpenses:'Recent expenses',viewAll:'View all',searchTransactions:'Search transactions...',all:'All',sortDateNewest:'Date: newest',sortDateOldest:'Date: oldest',sortAmountHighLow:'Amount: high-low',sortAmountLowHigh:'Amount: low-high',source:'Source',platform:'Platform',date:'Date',amount:'Amount',description:'Description',category:'Category',edit:'Edit',remove:'Remove',saveTransaction:'Save transaction',updateTransaction:'Update transaction',cancel:'Cancel',languageUpdated:'Language & currency updated',annualViewCurrentYear:'Annual view for current year',monthlyViewThis:'Monthly view - This month',monthlyViewLast:'Monthly view - Last month'},
+  fr:{dashboard:'Tableau de bord',income:'Revenus',expenses:'Depenses',transactions:'Toutes les transactions',analytics:'Analytique',tax:'Rapport fiscal',newTx:'Nouvelle transaction',addIncome:'Ajouter un revenu',addExpense:'Ajouter une depense',totalIncome:'Revenu total',totalExpenses:'Depenses totales',netProfit:'Benefice net',reports:'Rapports',pnl:'P&L du contenu',health:'Score de sante',market:'Plans',feedback:'Support',monthly:'Mensuel',annual:'Annuel',thisMonth:'Ce mois-ci',lastMonth:'Mois dernier',all:'Tout',edit:'Modifier',remove:'Supprimer',saveTransaction:'Enregistrer la transaction',cancel:'Annuler',languageUpdated:'Langue et devise mises a jour'},
+  es:{dashboard:'Panel',income:'Ingresos',expenses:'Gastos',transactions:'Todas las transacciones',analytics:'Analitica',tax:'Informe fiscal',newTx:'Nueva transaccion',addIncome:'Anadir ingreso',addExpense:'Anadir gasto',totalIncome:'Ingresos totales',totalExpenses:'Gastos totales',netProfit:'Beneficio neto',reports:'Informes',pnl:'P&L de contenido',health:'Salud financiera',market:'Planes',feedback:'Soporte',monthly:'Mensual',annual:'Anual',thisMonth:'Este mes',lastMonth:'Mes pasado',all:'Todo',edit:'Editar',remove:'Eliminar',saveTransaction:'Guardar transaccion',cancel:'Cancelar',languageUpdated:'Idioma y moneda actualizados'},
+  de:{dashboard:'Dashboard',income:'Einnahmen',expenses:'Ausgaben',transactions:'Alle Transaktionen',analytics:'Analytik',tax:'Steuerbericht',newTx:'Neue Transaktion',addIncome:'Einnahme hinzufugen',addExpense:'Ausgabe hinzufugen',totalIncome:'Gesamteinnahmen',totalExpenses:'Gesamtausgaben',netProfit:'Nettogewinn',reports:'Berichte',pnl:'Content P&L',health:'Gesundheitsscore',market:'Tarife',feedback:'Support',monthly:'Monatlich',annual:'Jahrlich',thisMonth:'Dieser Monat',lastMonth:'Letzter Monat',all:'Alle',edit:'Bearbeiten',remove:'Entfernen',saveTransaction:'Transaktion speichern',cancel:'Abbrechen',languageUpdated:'Sprache und Wahrung aktualisiert'},
+  ja:{dashboard:'ダッシュボード',income:'収入',expenses:'支出',transactions:'すべての取引',analytics:'分析',tax:'税務報告',newTx:'新しい取引',addIncome:'収入を追加',addExpense:'支出を追加',totalIncome:'総収入',totalExpenses:'総支出',netProfit:'純利益',reports:'レポート',pnl:'コンテンツ損益',health:'ヘルススコア',market:'プラン',feedback:'サポート',monthly:'月次',annual:'年次',thisMonth:'今月',lastMonth:'先月',all:'すべて',edit:'編集',remove:'削除',saveTransaction:'取引を保存',cancel:'キャンセル',languageUpdated:'言語と通貨を更新しました'},
+  ar:{dashboard:'لوحة القيادة',income:'الدخل',expenses:'المصروفات',transactions:'كل المعاملات',analytics:'التحليلات',tax:'تقرير ضريبي',newTx:'معاملة جديدة',addIncome:'اضافة دخل',addExpense:'اضافة مصروف',totalIncome:'اجمالي الدخل',totalExpenses:'اجمالي المصروفات',netProfit:'صافي الربح',reports:'التقارير',pnl:'ارباح/خسائر المحتوى',health:'درجة الصحة',market:'الباقات',feedback:'الدعم',monthly:'شهري',annual:'سنوي',thisMonth:'هذا الشهر',lastMonth:'الشهر الماضي',all:'الكل',edit:'تعديل',remove:'حذف',saveTransaction:'حفظ المعاملة',cancel:'الغاء',languageUpdated:'تم تحديث اللغة والعملة'}
 };
 
-function t(key){ return (I18N[profile.lang]||I18N.en)[key]||key; }
+function t(key){
+  const active=I18N[profile.lang]||{};
+  return active[key]||I18N.en[key]||key;
+}
+
+function labelForSort(mode){
+  const keyMap={
+    date_desc:'sortDateNewest',
+    date_asc:'sortDateOldest',
+    amount_desc:'sortAmountHighLow',
+    amount_asc:'sortAmountLowHigh'
+  };
+  return t(keyMap[mode]||'sortDateNewest');
+}
 
 function fmt(n){
   const rate = CURR_RATES[profile.curr]||1;
@@ -1218,55 +1240,14 @@ function isValidEmail(email){
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
-function getUsers(){
-  return JSON.parse(localStorage.getItem(LS_KEYS.users)||'[]');
+async function getCurrentSupabaseUser(){
+  if(!sbClient) return null;
+  const { data, error } = await sbClient.auth.getUser();
+  if(error) return null;
+  return data?.user||null;
 }
 
-function saveUsers(users){
-  localStorage.setItem(LS_KEYS.users, JSON.stringify(users));
-}
-
-function ensureDemoAlice(){
-  const demoEmail='alice@moneyhub.test';
-  const users=getUsers();
-  const hasAlice=users.some(u=>u.email===demoEmail);
-  if(!hasAlice){
-    users.push({
-      first:'Alice',
-      last:'Creator',
-      email:demoEmail,
-      password:'Alice@123',
-      createdAt:new Date().toISOString(),
-      isDemo:true
-    });
-    saveUsers(users);
-  }
-
-  const store=getUserDataStore();
-  if(!store[demoEmail]){
-    store[demoEmail]={
-      transactions:[
-        {id:1,type:'income',desc:'YouTube ad revenue',platform:'YouTube',category:'Ad revenue',bizper:'Business',amount:3200,date:'2026-03-05'},
-        {id:2,type:'income',desc:'Brand sponsorship',platform:'Sponsorship',category:'Brand deal',bizper:'Business',amount:1800,date:'2026-03-09'},
-        {id:3,type:'expense',desc:'Video editor subscription',platform:'—',category:'Software',bizper:'Business',amount:85,date:'2026-03-02'},
-        {id:4,type:'expense',desc:'Camera accessories',platform:'—',category:'Gear',bizper:'Business',amount:240,date:'2026-03-11'}
-      ],
-      nextId:5,
-      profile:{
-        type:'Influencer',
-        platforms:['YouTube','Sponsorship','Other'],
-        goal:'Grow to full-time income',
-        name:'Alice Creator',
-        brand:'Alice Studio',
-        lang:'en',
-        curr:'USD'
-      }
-    };
-    saveUserDataStore(store);
-  }
-}
-
-function signUpAuth(){
+async function signUpAuth(){
   const first=document.getElementById('signup-first').value.trim();
   const last=document.getElementById('signup-last').value.trim();
   const email=document.getElementById('signup-email').value.trim().toLowerCase();
@@ -1274,10 +1255,27 @@ function signUpAuth(){
   if(!first||!last||!email||!password){showToast('Please complete all sign up fields', true);return;}
   if(!isValidEmail(email)){showToast('Please enter a valid email with @', true);return;}
   if(!isValidPassword(password)){showToast('Password must be 8-15 chars and include at least 1 special character', true);return;}
-  const users=getUsers();
-  if(users.some(u=>u.email===email)){showToast('Account already exists. Please sign in.', true);switchAuthTab('signin');return;}
-  users.push({first,last,email,password,createdAt:new Date().toISOString()});
-  saveUsers(users);
+  if(!sbClient){showToast('Supabase is not configured', true);return;}
+  const { data, error } = await sbClient.auth.signUp({
+    email,
+    password,
+    options:{
+      data:{
+        first_name:first,
+        last_name:last,
+        full_name:(first+' '+last).trim()
+      }
+    }
+  });
+  if(error){showToast('Signup failed: '+error.message, true);return;}
+
+  const signedIn=!!data?.session;
+  if(!signedIn){
+    showToast('Account created. Check your email to confirm, then sign in.');
+    switchAuthTab('signin');
+    return;
+  }
+
   authState.isAuthenticated=true;
   authState.userEmail=email;
   localStorage.setItem(LS_KEYS.session, email);
@@ -1285,23 +1283,32 @@ function signUpAuth(){
   transactions=[];
   nextId=1;
   saveUserScopedState();
+  await saveUserPreferencesToCloud();
   showToast('Account created. Continue onboarding.');
   showScreen('screen-onboarding');
 }
 
-function signInAuth(){
+async function signInAuth(){
   const email=document.getElementById('signin-email').value.trim().toLowerCase();
   const password=document.getElementById('signin-pw').value;
   if(!email||!password){showToast('Please enter email and password', true);return;}
   if(!isValidEmail(email)){showToast('Please enter a valid email with @', true);return;}
-  if(!isValidPassword(password)){showToast('Password must be 8-15 chars and include at least 1 special character', true);return;}
-  const user=getUsers().find(u=>u.email===email&&u.password===password);
-  if(!user){showToast('Invalid email or password', true);return;}
+  if(password.length<6){showToast('Password must be at least 6 characters', true);return;}
+  if(!sbClient){showToast('Supabase is not configured', true);return;}
+  const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+  if(error){showToast('Invalid email or password', true);return;}
+  const sbUser=data?.user||null;
   authState.isAuthenticated=true;
   authState.userEmail=email;
   localStorage.setItem(LS_KEYS.session, email);
   loadUserScopedState(email);
-  if(!profile.name) profile.name=((user.first||'')+' '+(user.last||'')).trim();
+  await loadTransactionsFromCloud();
+  await loadUserPreferencesFromCloud();
+  if(!profile.name){
+    const md=sbUser?.user_metadata||{};
+    const full=((md.first_name||'')+' '+(md.last_name||'')).trim();
+    profile.name=full||email.split('@')[0];
+  }
   showToast('Signed in successfully');
   enterDashboard();
 }
@@ -1494,17 +1501,102 @@ function applyLangCurr(){
   closeLangModal();
   const active=document.querySelector('.nav-item.active');
   if(active) showPage(active.dataset.page);
+  applyI18n();
   saveProfile();
-  showToast('Language & currency updated');
+  showToast(t('languageUpdated'));
 }
 function applyI18n(){
-  // Nav items
-  const navMap={dashboard:'dashboard',income:'income',expenses:'expenses',transactions:'transactions',analytics:'analytics'};
+  const navMap={
+    dashboard:'dashboard',
+    income:'income',
+    expenses:'expenses',
+    transactions:'transactions',
+    analytics:'analytics',
+    pnl:'pnl',
+    health:'health',
+    market:'market',
+    feedback:'feedback'
+  };
+
   document.querySelectorAll('.nav-item[data-page]').forEach(n=>{
     const page=n.dataset.page;
-    const key=Object.keys(navMap).find(k=>navMap[k]===page);
-    if(key) n.childNodes[n.childNodes.length-1].textContent=' '+t(key);
+    const key=navMap[page];
+    if(!key) return;
+    const textNode=[...n.childNodes].find(node=>node.nodeType===3);
+    if(textNode) textNode.textContent=' '+t(key);
   });
+
+  const reports=document.getElementById('sb-reports-label');
+  if(reports) reports.textContent=t('reports');
+
+  const map={
+    'ttl-analytics':'analytics',
+    'sub-analytics':'financialPatterns',
+    'ttl-pnl':'pnl',
+    'sub-pnl':'pnlSub',
+    'ttl-health':'health',
+    'sub-health':'healthSub',
+    'ttl-market':'market',
+    'sub-market':'marketSub',
+    'ttl-feedback':'feedback',
+    'sub-feedback':'feedbackSub',
+    'ttl-tax':'tax',
+    'sub-tax':'taxSub'
+  };
+
+  Object.entries(map).forEach(([id,key])=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=t(key);
+  });
+
+  const textMap=[
+    ['#page-dashboard .tb-title-main','appTitle'],
+    ['#dashboard-tabs .stab[data-scope="monthly"]','monthly'],
+    ['#dashboard-tabs .stab[data-scope="annual"]','annual'],
+    ['#dashboard-tabs .stab[data-range="this"]','thisMonth'],
+    ['#dashboard-tabs .stab[data-range="last"]','lastMonth'],
+    ['#page-dashboard .card-head .card-title','financialHealthScore'],
+    ['#page-dashboard .card-head .card-link','fullReport'],
+    ['#page-dashboard .g2 .card:nth-child(2) .card-title','incomeVsExpenses'],
+    ['#page-dashboard .donut-center-label','total'],
+    ['#page-dashboard .g31 .card:nth-child(2) .card-title','recentExpenses'],
+    ['#page-dashboard .g31 .card:nth-child(2) .card-link','viewAll'],
+    ['#page-transactions .tb-title','transactions'],
+    ['#page-transactions #filter-all','all'],
+    ['#page-transactions #filter-income','income'],
+    ['#page-transactions #filter-expense','expenses'],
+    ['#page-income .tb-title','income'],
+    ['#page-expenses .tb-title','expenses']
+  ];
+
+  textMap.forEach(([selector,key])=>{
+    const el=document.querySelector(selector);
+    if(el) el.textContent=t(key);
+  });
+
+  const txSearch=document.getElementById('tx-search');
+  if(txSearch) txSearch.placeholder=t('searchTransactions');
+
+  const txHeads=document.querySelectorAll('#page-transactions .tx-head .tx-hc');
+  if(txHeads.length>=4){
+    txHeads[0].textContent=t('description');
+    txHeads[1].textContent=t('platform');
+    txHeads[2].textContent=t('date');
+    txHeads[3].textContent=t('amount');
+  }
+
+  const sortBtn=document.getElementById('sort-btn');
+  if(sortBtn) sortBtn.textContent=labelForSort(sortMode);
+
+  const modalTitle=document.querySelector('.modal-title');
+  if(modalTitle) modalTitle.textContent=t('newTx');
+  const modalCancel=document.querySelector('.modal-footer .btn-secondary');
+  if(modalCancel) modalCancel.textContent=t('cancel');
+  const modalSave=document.getElementById('modal-save-btn');
+  if(modalSave && modalSave.textContent==='Save transaction') modalSave.textContent=t('saveTransaction');
+  if(modalSave && modalSave.textContent==='Update transaction') modalSave.textContent=t('updateTransaction');
+
+  document.querySelectorAll('.logout-btn').forEach(btn=>btn.textContent=t('logout'));
 }
 
 /* ═══════════════════════════════════════════
@@ -1639,6 +1731,7 @@ function setDashboardScope(scope, el){
   document.querySelectorAll('#dashboard-tabs .stab[data-scope]').forEach(s=>s.classList.toggle('active', s.dataset.scope===scope));
   const rangeTabs=document.querySelectorAll('#dashboard-tabs .stab[data-range]');
   rangeTabs.forEach(s=>s.style.display=scope==='monthly'?'block':'none');
+  saveUserPreferencesToCloud();
   renderDashboard();
   renderTrend();
   renderSplitDonut();
@@ -1661,14 +1754,13 @@ function renderDashboard(){
   document.getElementById('d-income').textContent=fmt(inc);
   document.getElementById('d-expenses').textContent=fmt(exp);
   document.getElementById('d-profit').textContent=fmt(prof);
-  const labelPrefix=dashboardScope==='annual'?'Annual':'Monthly';
-  document.getElementById('d-label-income').textContent=labelPrefix+' income';
-  document.getElementById('d-label-expense').textContent=labelPrefix+' expenses';
-  document.getElementById('d-label-profit').textContent=labelPrefix+' net';
+  document.getElementById('d-label-income').textContent=dashboardScope==='annual'?t('annualIncomeLabel'):t('monthlyIncomeLabel');
+  document.getElementById('d-label-expense').textContent=dashboardScope==='annual'?t('annualExpensesLabel'):t('monthlyExpensesLabel');
+  document.getElementById('d-label-profit').textContent=dashboardScope==='annual'?t('annualNetLabel'):t('monthlyNetLabel');
   // MoM change
   const tl=buildIncomeTimeline();
-  let momText='+12% vs last month';
-  if(tl.length>=2){const last=tl[tl.length-1][1],prev=tl[tl.length-2][1];const p=Math.round((last-prev)/prev*100);momText=(p>=0?'+':'')+p+'% vs last month';}
+  let momText='+12% '+t('vsLastMonth');
+  if(tl.length>=2){const last=tl[tl.length-1][1],prev=tl[tl.length-2][1];const p=Math.round((last-prev)/prev*100);momText=(p>=0?'+':'')+p+'% '+t('vsLastMonth');}
   document.getElementById('d-income-ch').textContent=momText;
   document.getElementById('d-exp-ch').textContent=fmt(getBiz(dashTx))+' biz · '+fmt(getPer(dashTx))+' personal';
   document.getElementById('d-margin').textContent=inc>0?Math.round(prof/inc*100)+'% margin':'—';
@@ -1694,8 +1786,8 @@ function renderDashboard(){
   renderDashboardHealthWidget();
 
   const subLabel = dashboardScope==='annual'
-    ? 'Annual view for current year'
-    : (dashboardRange==='this'?'Monthly view · This month':'Monthly view · Last month');
+    ? t('annualViewCurrentYear')
+    : (dashboardRange==='this'?t('monthlyViewThis'):t('monthlyViewLast'));
   document.getElementById('dash-sub').textContent=subLabel;
 }
 function toggleExpense(id){expenseToggles[id]=!expenseToggles[id]; renderDashboard(); setTimeout(()=>renderSplitDonut(),50);}
@@ -1722,7 +1814,7 @@ function renderSplitDonut(tab){
   const incomeTotal=getIncome(dashTx);
   const expenseTotal=getExpenses(dashTx);
   const total=incomeTotal+expenseTotal;
-  const labels=['Income','Expenses'];
+  const labels=[t('income'),t('expenses')];
   const data=[incomeTotal,expenseTotal];
   const colors=['#1a6b3c','#c0392b'];
   document.getElementById('donut-val').textContent=fmt(total);
@@ -1747,6 +1839,17 @@ function renderAnalyticsCharts(){
   if(el('an-margin')) el('an-margin').textContent=margin+'% avg margin';
   if(el('an-top-plat')) el('an-top-plat').textContent=topPlat[0];
   if(el('an-top-pct')) el('an-top-pct').textContent=topPct+'% of income';
+
+  const bizAmt=getBiz(transactions);
+  const perAmt=getPer(transactions);
+  const totalExp=bizAmt+perAmt;
+  const bizPct=totalExp?Math.round((bizAmt/totalExp)*100):0;
+  const perPct=100-bizPct;
+  if(el('an-biz-val')) el('an-biz-val').textContent=`${fmt(bizAmt)} · ${bizPct}%`;
+  if(el('an-per-val')) el('an-per-val').textContent=`${fmt(perAmt)} · ${perPct}%`;
+  if(el('an-biz-bar')) el('an-biz-bar').style.width=`${bizPct}%`;
+  if(el('an-per-bar')) el('an-per-bar').style.width=`${perPct}%`;
+  if(el('an-biz-insight')) el('an-biz-insight').textContent=`${fmt(bizAmt)} in business expenses may be potentially deductible. Check local tax rules before filing.`;
 
   const bc=document.getElementById('barChart');
   if(bc){
@@ -2073,14 +2176,8 @@ function renderPlatformBarsInner(elId){
 /* ═══════════════════════════════════════════
    CONTENT P&L TRACKER
 ═══════════════════════════════════════════ */
-let plEntries=[
-  {id:1,title:'Morning Routine Video',platform:'YouTube',type:'Video',spent:120,earned:380},
-  {id:2,title:'Studio Tour Reel',platform:'Instagram',type:'Short / Reel',spent:200,earned:95},
-  {id:3,title:'Gear Review – Sony A7',platform:'YouTube',type:'Video',spent:480,earned:840},
-  {id:4,title:'Day in my life Short',platform:'TikTok',type:'Short / Reel',spent:30,earned:60},
-  {id:5,title:'Live stream – Q&A',platform:'Twitch',type:'Stream',spent:0,earned:320},
-];
-let plNextId=6;
+let plEntries=[];
+let plNextId=1;
 
 function openPLForm(){ const f=document.getElementById('pl-form'); if(f){f.style.display='block';document.getElementById('pl-title').focus();} }
 function closePLForm(){ const f=document.getElementById('pl-form'); if(f) f.style.display='none'; }
@@ -2093,6 +2190,7 @@ function savePLEntry(){
   const earned=parseFloat(document.getElementById('pl-earned').value)||0;
   if(!title){showToast('Please enter a content title',true);return;}
   plEntries.unshift({id:plNextId++,title,platform,type,spent,earned});
+  saveUserScopedState();
   closePLForm();
   ['pl-title','pl-spent','pl-earned'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderPLPage(); showToast('Content entry saved');
@@ -2100,6 +2198,7 @@ function savePLEntry(){
 
 function deletePLEntry(id){
   plEntries=plEntries.filter(e=>e.id!==id);
+  saveUserScopedState();
   renderPLPage(); showToast('Entry removed');
 }
 
@@ -2238,12 +2337,12 @@ function renderTxTable(){
   if(!txs.length){body.innerHTML='<div class="empty"><div class="empty-title">No transactions found</div><div class="empty-sub">Try adjusting your search or filter</div></div>';return;}
   const inSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
   const exSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
-  body.innerHTML=txs.map(t=>{
-    const p=PLATFORMS[t.platform]||PLATFORMS['—'];
-    const badge=t.type==='income'
+  body.innerHTML=txs.map(tx=>{
+    const p=PLATFORMS[tx.platform]||PLATFORMS['—'];
+    const badge=tx.type==='income'
       ?`<div class="tx-pllogo" style="background:${p.bg}">${p.logo}</div>`
       :`<div class="tx-badge ex">${exSVG}</div>`;
-    return `<div class="tx-row"><div class="tx-nw">${badge}<div><div class="tx-name">${t.desc}</div><div class="tx-meta">${t.category} · ${t.bizper}</div></div></div><div class="tx-cell">${t.platform}</div><div class="tx-cell">${fmtDate(t.date)}</div><div class="tx-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${t.id})">Edit</button></div></div>`;
+    return `<div class="tx-row"><div class="tx-nw">${badge}<div><div class="tx-name">${tx.desc}</div><div class="tx-meta">${tx.category} · ${tx.bizper}</div></div></div><div class="tx-cell">${tx.platform}</div><div class="tx-cell">${fmtDate(tx.date)}</div><div class="tx-amount ${tx.type==='income'?'pos':'neg'}">${tx.type==='income'?'+':'-'}${fmt(tx.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${tx.id})">${t('edit')}</button></div></div>`;
   }).join('');
   const cnt=document.getElementById('tx-count');if(cnt)cnt.textContent=transactions.length;
 }
@@ -2256,6 +2355,7 @@ function showPage(page){
     showScreen('screen-login');
     return;
   }
+  injectTopbarActions();
   document.querySelectorAll('.main > .page').forEach(p=>p.style.display='none');
   const target=document.getElementById('page-'+page);
   if(target){target.style.display='block';void target.offsetWidth;target.className='page';}
@@ -2268,9 +2368,45 @@ function showPage(page){
   if(page==='pnl') renderPLPage();
   if(page==='health') setTimeout(renderHealthPage, 50);
   if(page==='feedback') renderFeedbackList();
-  if(page==='tax'){ const el=document.getElementById('tax-income'); if(el) el.textContent=fmt(getIncome(transactions)); }
+  if(page==='tax'){
+    const taxIncome=document.getElementById('tax-income');
+    const taxDed=document.getElementById('tax-deductible');
+    const taxNet=document.getElementById('tax-net');
+    const incVal=getIncome(transactions);
+    const dedVal=getBiz(transactions);
+    const netVal=Math.max(incVal-dedVal,0);
+    if(taxIncome) taxIncome.textContent=fmt(incVal);
+    if(taxDed) taxDed.textContent=fmt(dedVal);
+    if(taxNet) taxNet.textContent=fmt(netVal);
+  }
+  applyI18n();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.addEventListener('click',()=>showPage(n.dataset.page)));
+
+async function logoutUser(){
+  if(sbClient){
+    try{ await sbClient.auth.signOut(); }
+    catch(e){ console.warn('Supabase sign-out failed', e); }
+  }
+  authState.isAuthenticated=false;
+  authState.userEmail='';
+  localStorage.removeItem(LS_KEYS.session);
+  showScreen('screen-login');
+  switchAuthTab('signin');
+  showToast('You have been logged out');
+}
+
+function injectTopbarActions(){
+  document.querySelectorAll('.topbar .tb-right').forEach(container=>{
+    if(!container.querySelector('.logout-btn')){
+      const btn=document.createElement('button');
+      btn.className='btn-secondary logout-btn';
+      btn.textContent=t('logout');
+      btn.onclick=logoutUser;
+      container.insertBefore(btn, container.firstChild);
+    }
+  });
+}
 
 /* ═══════════════════════════════════════════
    FILTER / SORT
@@ -2278,15 +2414,9 @@ document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.addEventListener(
 function setFilter(f){currentFilter=f;['all','income','expense'].forEach(x=>{const b=document.getElementById('filter-'+x);if(b)b.classList.toggle('active',x===f);});renderTxTable();}
 function toggleSort(){
   const order=['date_desc','date_asc','amount_desc','amount_asc'];
-  const labels={
-    date_desc:'Date: newest',
-    date_asc:'Date: oldest',
-    amount_desc:'Amount: high-low',
-    amount_asc:'Amount: low-high'
-  };
   const idx=order.indexOf(sortMode);
   sortMode=order[(idx+1)%order.length];
-  document.getElementById('sort-btn').textContent=labels[sortMode];
+  document.getElementById('sort-btn').textContent=labelForSort(sortMode);
   renderTxTable();
 }
 
@@ -2298,7 +2428,7 @@ function openModal(defaultType){
   document.getElementById('f-amount').value='';
   document.getElementById('f-desc').value='';
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('modal-save-btn').textContent='Save transaction';
+  document.getElementById('modal-save-btn').textContent=t('saveTransaction');
   document.getElementById('modal-save-btn').onclick=saveTransaction;
   document.getElementById('modal-bg').classList.add('open');
   setTimeout(()=>document.getElementById('f-amount').focus(),80);
@@ -2309,7 +2439,7 @@ function setModalType(type){
   document.getElementById('btn-income').className='type-btn '+(type==='income'?'t-inc':'t-off');
   document.getElementById('btn-expense').className='type-btn '+(type==='expense'?'t-exp':'t-off');
 }
-function saveTransaction(){
+async function saveTransaction(){
   const amount=parseFloat(document.getElementById('f-amount').value);
   const desc=document.getElementById('f-desc').value.trim();
   const date=document.getElementById('f-date').value;
@@ -2317,12 +2447,46 @@ function saveTransaction(){
   const category=document.getElementById('f-category').value;
   const bizper=document.getElementById('f-bizper').value;
   if(!amount||amount<=0||!desc||!date){showToast('Please fill all required fields',true);return;}
-  transactions.unshift({id:nextId++,type:modalType,desc,platform,category,bizper,amount,date});
+  let createdId=nextId++;
+  if(sbClient && authState.isAuthenticated){
+    const user=await getCurrentSupabaseUser();
+    if(!user){showToast('Session expired. Please sign in again.', true);return;}
+    const txRow={
+      user_id:user.id,
+      type:modalType,
+      description:desc,
+      platform,
+      category,
+      bizper,
+      amount,
+      date
+    };
+    let ins=await sbClient.from(SUPABASE_TX_TABLE).insert(txRow).select('id').single();
+    if(ins.error && /bizper/i.test(ins.error.message||'')){
+      const { bizper:_, ...fallbackTxRow } = txRow;
+      ins=await sbClient.from(SUPABASE_TX_TABLE).insert(fallbackTxRow).select('id').single();
+    }
+    if(ins.error){showToast('Could not save transaction: '+ins.error.message, true);return;}
+    createdId=Number(ins.data?.id)||createdId;
+  }
+  transactions.unshift({id:createdId,type:modalType,desc,platform,category,bizper,amount,date});
+  nextId=Math.max(...transactions.map(t=>Number(t.id)||0),0)+1;
   saveTransactions();
   closeModal();showToast('Transaction saved');
   const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
 }
-function deleteTx(id){transactions=transactions.filter(t=>t.id!==id);saveTransactions();const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);showToast('Transaction removed');}
+async function deleteTx(id){
+  if(sbClient && authState.isAuthenticated){
+    const user=await getCurrentSupabaseUser();
+    if(!user){showToast('Session expired. Please sign in again.', true);return;}
+    const { error } = await sbClient.from(SUPABASE_TX_TABLE).delete().eq('id', id).eq('user_id', user.id);
+    if(error){showToast('Could not delete transaction: '+error.message, true);return;}
+  }
+  transactions=transactions.filter(t=>t.id!==id);
+  saveTransactions();
+  const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
+  showToast('Transaction removed');
+}
 function editTx(id){
   const t=transactions.find(t=>t.id===id);if(!t)return;
   setModalType(t.type);
@@ -2333,16 +2497,44 @@ function editTx(id){
   document.getElementById('f-category').value=t.category;
   document.getElementById('f-bizper').value=t.bizper;
   const btn=document.getElementById('modal-save-btn');
-  btn.textContent='Update transaction';
-  btn.onclick=()=>{
+  btn.textContent=t('updateTransaction');
+  btn.onclick=async ()=>{
     const amount=parseFloat(document.getElementById('f-amount').value);
     const desc=document.getElementById('f-desc').value.trim();
     const date=document.getElementById('f-date').value;
     if(!amount||!desc||!date){showToast('Please fill all required fields',true);return;}
+    const updated={
+      type:modalType,
+      amount,
+      desc,
+      date,
+      platform:document.getElementById('f-platform').value,
+      category:document.getElementById('f-category').value,
+      bizper:document.getElementById('f-bizper').value
+    };
+    if(sbClient && authState.isAuthenticated){
+      const user=await getCurrentSupabaseUser();
+      if(!user){showToast('Session expired. Please sign in again.', true);return;}
+      const txRow={
+        type:updated.type,
+        description:updated.desc,
+        platform:updated.platform,
+        category:updated.category,
+        bizper:updated.bizper,
+        amount:updated.amount,
+        date:updated.date
+      };
+      let upd=await sbClient.from(SUPABASE_TX_TABLE).update(txRow).eq('id', id).eq('user_id', user.id);
+      if(upd.error && /bizper/i.test(upd.error.message||'')){
+        const { bizper:_, ...fallbackTxRow } = txRow;
+        upd=await sbClient.from(SUPABASE_TX_TABLE).update(fallbackTxRow).eq('id', id).eq('user_id', user.id);
+      }
+      if(upd.error){showToast('Could not update transaction: '+upd.error.message, true);return;}
+    }
     const idx=transactions.findIndex(tx=>tx.id===id);
-    if(idx>-1)transactions[idx]={...transactions[idx],type:modalType,amount,desc,date,platform:document.getElementById('f-platform').value,category:document.getElementById('f-category').value,bizper:document.getElementById('f-bizper').value};
+    if(idx>-1)transactions[idx]={...transactions[idx],...updated};
     saveTransactions();
-    closeModal();btn.textContent='Save transaction';btn.onclick=saveTransaction;
+    closeModal();btn.textContent=t('saveTransaction');btn.onclick=saveTransaction;
     const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
     showToast('Transaction updated');
   };
@@ -2367,7 +2559,6 @@ const LS_KEYS={
   profile:'moneyhub_profile',
   theme:'moneyhub_theme',
   feedback:'moneyhub_feedback',
-  users:'moneyhub_users',
   session:'moneyhub_session',
   userData:'moneyhub_user_data'
 };
@@ -2381,17 +2572,94 @@ function saveUserDataStore(store){
   localStorage.setItem(LS_KEYS.userData, JSON.stringify(store));
 }
 
+async function loadTransactionsFromCloud(){
+  if(!sbClient || !authState.isAuthenticated) return;
+  const user=await getCurrentSupabaseUser();
+  if(!user) return;
+  let res=await sbClient.from(SUPABASE_TX_TABLE)
+    .select('id,type,description,platform,category,bizper,amount,date')
+    .eq('user_id', user.id)
+    .order('date', { ascending:false })
+    .order('id', { ascending:false });
+  if(res.error && /bizper/i.test(res.error.message||'')){
+    res=await sbClient.from(SUPABASE_TX_TABLE)
+      .select('id,type,description,platform,category,amount,date')
+      .eq('user_id', user.id)
+      .order('date', { ascending:false })
+      .order('id', { ascending:false });
+  }
+  if(res.error){
+    console.warn('Could not load transactions from Supabase', res.error);
+    return;
+  }
+  transactions=(res.data||[]).map(row=>({
+    id:Number(row.id),
+    type:row.type,
+    desc:row.description,
+    platform:row.platform,
+    category:row.category,
+    bizper:row.bizper||'Business',
+    amount:Number(row.amount)||0,
+    date:row.date
+  }));
+  nextId=Math.max(...transactions.map(t=>Number(t.id)||0),0)+1;
+}
+
+async function loadUserPreferencesFromCloud(){
+  if(!sbClient || !authState.isAuthenticated) return;
+  const user=await getCurrentSupabaseUser();
+  if(!user) return;
+  const { data, error } = await sbClient
+    .from(SUPABASE_PREF_TABLE)
+    .select('theme,period')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if(error){
+    console.warn('Could not load user preferences', error);
+    return;
+  }
+  if(!data){
+    await sbClient.from(SUPABASE_PREF_TABLE).insert({
+      user_id:user.id,
+      theme:appTheme,
+      period:dashboardScope==='annual'?'year':'month'
+    });
+    return;
+  }
+  appTheme=(data.theme==='dark')?'dark':'light';
+  dashboardScope=(data.period==='year' || data.period==='annual')?'annual':'monthly';
+}
+
+async function saveUserPreferencesToCloud(){
+  if(!sbClient || !authState.isAuthenticated) return;
+  const user=await getCurrentSupabaseUser();
+  if(!user) return;
+  const { error } = await sbClient
+    .from(SUPABASE_PREF_TABLE)
+    .upsert({
+      user_id:user.id,
+      theme:appTheme,
+      period:dashboardScope==='annual'?'year':'month',
+      updated_at:new Date().toISOString()
+    },{ onConflict:'user_id' });
+  if(error) console.warn('Could not save user preferences', error);
+}
+
 function loadUserScopedState(email){
   const store=getUserDataStore();
   const scoped=store[email];
   if(scoped){
     transactions=Array.isArray(scoped.transactions)?scoped.transactions:[];
     nextId=Math.max(...transactions.map(t=>t.id),0)+1;
+    plEntries=Array.isArray(scoped.plEntries)?scoped.plEntries:[];
+    plNextId=Math.max(...plEntries.map(e=>e.id),0)+1;
     if(scoped.profile && typeof scoped.profile==='object') Object.assign(profile, scoped.profile);
     return;
   }
   transactions=[];
   nextId=1;
+  plEntries=[];
+  plNextId=1;
 }
 
 function saveUserScopedState(){
@@ -2400,6 +2668,8 @@ function saveUserScopedState(){
   store[authState.userEmail]={
     transactions,
     nextId,
+    plEntries,
+    plNextId,
     profile
   };
   saveUserDataStore(store);
@@ -2411,11 +2681,13 @@ function saveTransactions(){
 
 function saveProfile(){
   saveUserScopedState();
+  saveUserPreferencesToCloud();
 }
 
 function toggleTheme(){
   appTheme = appTheme==='dark' ? 'light' : 'dark';
   applyTheme();
+  saveUserPreferencesToCloud();
 }
 
 function applyTheme(){
@@ -2425,44 +2697,91 @@ function applyTheme(){
   localStorage.setItem(LS_KEYS.theme, appTheme);
 }
 
-function loadAppState(){
+async function loadAppState(){
   try{
-    ensureDemoAlice();
-    const activeSession=localStorage.getItem(LS_KEYS.session);
+    let activeSession='';
+    let sbUser=null;
+    if(sbClient){
+      const { data, error } = await sbClient.auth.getSession();
+      sbUser=data?.session?.user||null;
+      if(!error && sbUser?.email){
+        activeSession=sbUser.email.toLowerCase();
+        localStorage.setItem(LS_KEYS.session, activeSession);
+      }
+    }else{
+      activeSession=localStorage.getItem(LS_KEYS.session)||'';
+    }
     if(activeSession){
       authState.isAuthenticated=true;
       authState.userEmail=activeSession;
       loadUserScopedState(activeSession);
-      const matched=getUsers().find(u=>u.email===activeSession);
-      if(matched && !profile.name){
-        profile.name=((matched.first||'')+' '+(matched.last||'')).trim();
+      if(sbClient){
+        await loadTransactionsFromCloud();
+        await loadUserPreferencesFromCloud();
       }
+      if(!profile.name){
+        const md=sbUser?.user_metadata||{};
+        const full=((md.first_name||'')+' '+(md.last_name||'')).trim();
+        profile.name=full||activeSession.split('@')[0];
+      }
+    }else{
+      appTheme=localStorage.getItem(LS_KEYS.theme)||'light';
     }
-    appTheme=localStorage.getItem(LS_KEYS.theme)||'light';
   }catch(e){
     console.warn('Could not load app state', e);
   }
 }
 
-function saveFeedback(){
+async function saveFeedback(){
   const name=document.getElementById('fb-name').value.trim();
   const email=document.getElementById('fb-email').value.trim();
   const message=document.getElementById('fb-message').value.trim();
   if(!name||!email||!message){showToast('Please fill all feedback fields', true);return;}
-  const list=JSON.parse(localStorage.getItem(LS_KEYS.feedback)||'[]');
-  list.unshift({name,email,message,createdAt:new Date().toISOString()});
-  localStorage.setItem(LS_KEYS.feedback, JSON.stringify(list));
+  if(!sbClient || !authState.isAuthenticated){showToast('Please sign in to submit feedback', true);return;}
+  const user=await getCurrentSupabaseUser();
+  if(!user){showToast('Session expired. Please sign in again.', true);return;}
+  const text=`${name} | ${email}\n${message}`;
+  const { error } = await sbClient.from(SUPABASE_FEEDBACK_TABLE).insert({ user_id:user.id, text });
+  if(error){showToast('Could not submit feedback: '+error.message, true);return;}
   document.getElementById('fb-name').value='';
   document.getElementById('fb-email').value='';
   document.getElementById('fb-message').value='';
-  renderFeedbackList();
-  showToast('Feedback saved locally');
+  await renderFeedbackList();
+  showToast('Feedback submitted');
 }
 
-function renderFeedbackList(){
+async function renderFeedbackList(){
   const listEl=document.getElementById('feedback-list');
   if(!listEl) return;
-  const list=JSON.parse(localStorage.getItem(LS_KEYS.feedback)||'[]');
+  if(!sbClient || !authState.isAuthenticated){
+    listEl.innerHTML='<div class="empty"><div class="empty-title">Sign in to view feedback</div><div class="empty-sub">Your submissions will appear here</div></div>';
+    return;
+  }
+  const user=await getCurrentSupabaseUser();
+  if(!user){
+    listEl.innerHTML='<div class="empty"><div class="empty-title">Session expired</div><div class="empty-sub">Please sign in again</div></div>';
+    return;
+  }
+  const { data, error } = await sbClient
+    .from(SUPABASE_FEEDBACK_TABLE)
+    .select('text,created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending:false })
+    .limit(8);
+  if(error){
+    listEl.innerHTML='<div class="empty"><div class="empty-title">Could not load feedback</div><div class="empty-sub">'+error.message+'</div></div>';
+    return;
+  }
+  const list=(data||[]).map(item=>{
+    const txt=String(item.text||'');
+    const split=txt.split('\n');
+    const header=split[0]||'—';
+    const body=split.slice(1).join('\n')||txt;
+    const p=header.split('|');
+    const n=(p[0]||'').trim()||'Anonymous';
+    const em=(p[1]||'').trim()||'—';
+    return {name:n,email:em,message:body,createdAt:item.created_at};
+  });
   if(!list.length){
     listEl.innerHTML='<div class="empty"><div class="empty-title">No feedback yet</div><div class="empty-sub">Your submitted feedback will appear here</div></div>';
     return;
@@ -2497,9 +2816,17 @@ safeOn('export-btn','click',()=>{
 /* ═══════════════════════════════════════════
    INIT — start on login screen
 ═══════════════════════════════════════════ */
-loadAppState();
-applyTheme();
-showScreen('screen-login');
+(async function initApp(){
+  await loadAppState();
+  applyTheme();
+  if(authState.isAuthenticated){
+    applyProfileToApp();
+    showScreen('screen-app');
+    showPage('dashboard');
+  }else{
+    showScreen('screen-login');
+  }
+})();
 </script>
 </body>
 </html>

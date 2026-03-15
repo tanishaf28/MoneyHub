@@ -1187,6 +1187,242 @@ function labelForSort(mode){
   return t(keyMap[mode]||'sortDateNewest');
 }
 
+const RUNTIME_TEXT={
+  fr:{
+      'Monthly income':'Revenu mensuel',
+      'Income by platform':'Revenu par plateforme',
+      'AI insight:':'Insight IA :',
+      'No data yet':'Pas encore de donnees',
+      'Source':'Source',
+      'Platform':'Plateforme',
+      'Date':'Date',
+      'Amount':'Montant',
+      'Description':'Description',
+      'Category':'Categorie',
+      'No feedback yet':'Aucun retour pour le moment',
+      'Your submitted feedback will appear here':'Vos retours soumis apparaitront ici',
+    'Revenue goal:':'Objectif de revenu :',
+    'Set your revenue goal in onboarding to tailor guidance.':'Definissez votre objectif de revenu dans l onboarding pour adapter les conseils.',
+    'No transactions found':'Aucune transaction trouvee',
+    'Try adjusting your search or filter':'Essayez d ajuster votre recherche ou filtre',
+    'No expenses recorded':'Aucune depense enregistree',
+    'Add your first expense above':'Ajoutez votre premiere depense ci-dessus',
+    'No data':'Aucune donnee',
+    'Spending by category':'Depenses par categorie',
+    'Tax report ->':'Rapport fiscal ->',
+    'Business expenses':'Depenses professionnelles',
+    'Personal expenses':'Depenses personnelles',
+    'Total expenses':'Depenses totales',
+    'Potentially deductible':'Potentiellement deductible',
+    'Not deductible':'Non deductible',
+    'No income data':'Aucune donnee de revenu',
+    'No income entries':'Aucune entree de revenu',
+    'No income recorded':'Aucun revenu enregistre',
+    'No content entries yet':'Aucune entree de contenu',
+    'Score breakdown':'Repartition du score',
+    'Language & currency updated':'Langue et devise mises a jour',
+    'Please sign in first':'Veuillez vous connecter d abord',
+    'Signed in successfully':'Connexion reussie',
+    'You have been logged out':'Vous avez ete deconnecte',
+    'Transaction saved':'Transaction enregistree',
+    'Transaction updated':'Transaction mise a jour',
+    'Transaction removed':'Transaction supprimee',
+    'Feedback submitted':'Retour envoye',
+    'Search transactions...':'Rechercher des transactions...'
+  },
+  es:{
+      'Monthly income':'Ingresos mensuales',
+      'Income by platform':'Ingresos por plataforma',
+      'AI insight:':'Consejo IA:',
+      'No data yet':'Aun no hay datos',
+      'Source':'Fuente',
+      'Platform':'Plataforma',
+      'Date':'Fecha',
+      'Amount':'Monto',
+      'Description':'Descripcion',
+      'Category':'Categoria',
+      'No feedback yet':'Aun no hay comentarios',
+      'Your submitted feedback will appear here':'Tus comentarios enviados apareceran aqui',
+    'Revenue goal:':'Objetivo de ingresos:',
+    'Set your revenue goal in onboarding to tailor guidance.':'Define tu objetivo de ingresos en onboarding para personalizar las recomendaciones.',
+    'No transactions found':'No se encontraron transacciones',
+    'Try adjusting your search or filter':'Intenta ajustar tu busqueda o filtro',
+    'No expenses recorded':'No hay gastos registrados',
+    'Add your first expense above':'Agrega tu primer gasto arriba',
+    'No data':'Sin datos',
+    'Spending by category':'Gasto por categoria',
+    'Tax report ->':'Informe fiscal ->',
+    'Business expenses':'Gastos de negocio',
+    'Personal expenses':'Gastos personales',
+    'Total expenses':'Gastos totales',
+    'Potentially deductible':'Potencialmente deducible',
+    'Not deductible':'No deducible',
+    'No income data':'Sin datos de ingresos',
+    'No income entries':'Sin entradas de ingresos',
+    'No income recorded':'Sin ingresos registrados',
+    'No content entries yet':'Sin entradas de contenido',
+    'Score breakdown':'Desglose de puntaje',
+    'Language & currency updated':'Idioma y moneda actualizados',
+    'Please sign in first':'Inicia sesion primero',
+    'Signed in successfully':'Inicio de sesion exitoso',
+    'You have been logged out':'Has cerrado sesion',
+    'Transaction saved':'Transaccion guardada',
+    'Transaction updated':'Transaccion actualizada',
+    'Transaction removed':'Transaccion eliminada',
+    'Feedback submitted':'Comentarios enviados',
+    'Search transactions...':'Buscar transacciones...'
+  },
+  de:{
+      'Monthly income':'Monatliche Einnahmen',
+      'Income by platform':'Einnahmen nach Plattform',
+      'AI insight:':'KI-Hinweis:',
+      'No data yet':'Noch keine Daten',
+      'Source':'Quelle',
+      'Platform':'Plattform',
+      'Date':'Datum',
+      'Amount':'Betrag',
+      'Description':'Beschreibung',
+      'Category':'Kategorie',
+      'No feedback yet':'Noch kein Feedback',
+      'Your submitted feedback will appear here':'Ihr gesendetes Feedback wird hier angezeigt',
+    'Revenue goal:':'Umsatzziel:',
+    'Set your revenue goal in onboarding to tailor guidance.':'Legen Sie Ihr Umsatzziel im Onboarding fest, um Hinweise anzupassen.',
+    'No transactions found':'Keine Transaktionen gefunden',
+    'Try adjusting your search or filter':'Passen Sie Suche oder Filter an',
+    'No expenses recorded':'Keine Ausgaben erfasst',
+    'Add your first expense above':'Fugen Sie oben Ihre erste Ausgabe hinzu',
+    'No data':'Keine Daten',
+    'Spending by category':'Ausgaben nach Kategorie',
+    'Tax report ->':'Steuerbericht ->',
+    'Business expenses':'Geschaftsausgaben',
+    'Personal expenses':'Personliche Ausgaben',
+    'Total expenses':'Gesamtausgaben',
+    'Potentially deductible':'Potenziell absetzbar',
+    'Not deductible':'Nicht absetzbar',
+    'No income data':'Keine Einnahmedaten',
+    'No income entries':'Keine Einnahmeeintrage',
+    'No income recorded':'Keine Einnahmen erfasst',
+    'No content entries yet':'Noch keine Inhalteintrage',
+    'Score breakdown':'Punkteaufschlusselung',
+    'Language & currency updated':'Sprache und Wahrung aktualisiert',
+    'Please sign in first':'Bitte zuerst anmelden',
+    'Signed in successfully':'Erfolgreich angemeldet',
+    'You have been logged out':'Sie wurden abgemeldet',
+    'Transaction saved':'Transaktion gespeichert',
+    'Transaction updated':'Transaktion aktualisiert',
+    'Transaction removed':'Transaktion entfernt',
+    'Feedback submitted':'Feedback gesendet',
+    'Search transactions...':'Transaktionen suchen...'
+  },
+  ja:{
+      'Monthly income':'月次収入',
+      'Income by platform':'プラットフォーム別収入',
+      'AI insight:':'AIインサイト：',
+      'No data yet':'データがありません',
+      'Source':'ソース',
+      'Platform':'プラットフォーム',
+      'Date':'日付',
+      'Amount':'金額',
+      'Description':'説明',
+      'Category':'カテゴリ',
+      'No feedback yet':'フィードバックはまだありません',
+      'Your submitted feedback will appear here':'送信したフィードバックがここに表示されます',
+    'Revenue goal:':'収益目標：',
+    'Set your revenue goal in onboarding to tailor guidance.':'オンボーディングで収益目標を設定すると、ガイダンスが最適化されます。',
+    'No transactions found':'取引が見つかりません',
+    'Try adjusting your search or filter':'検索またはフィルターを調整してください',
+    'No expenses recorded':'支出が記録されていません',
+    'Add your first expense above':'上で最初の支出を追加してください',
+    'No data':'データなし',
+    'Spending by category':'カテゴリ別支出',
+    'Tax report ->':'税務レポート ->',
+    'Business expenses':'事業支出',
+    'Personal expenses':'個人支出',
+    'Total expenses':'総支出',
+    'Potentially deductible':'控除対象の可能性あり',
+    'Not deductible':'控除不可',
+    'No income data':'収入データなし',
+    'No income entries':'収入エントリなし',
+    'No income recorded':'収入記録なし',
+    'No content entries yet':'コンテンツエントリなし',
+    'Score breakdown':'スコア内訳',
+    'Language & currency updated':'言語と通貨を更新しました',
+    'Please sign in first':'先にサインインしてください',
+    'Signed in successfully':'サインインしました',
+    'You have been logged out':'ログアウトしました',
+    'Transaction saved':'取引を保存しました',
+    'Transaction updated':'取引を更新しました',
+    'Transaction removed':'取引を削除しました',
+    'Feedback submitted':'フィードバックを送信しました',
+    'Search transactions...':'取引を検索...'
+  },
+  ar:{
+      'Monthly income':'الدخل الشهري',
+      'Income by platform':'الدخل حسب المنصة',
+      'AI insight:':'رؤية الذكاء الاصطناعي:',
+      'No data yet':'لا توجد بيانات بعد',
+      'Source':'المصدر',
+      'Platform':'المنصة',
+      'Date':'التاريخ',
+      'Amount':'المبلغ',
+      'Description':'الوصف',
+      'Category':'الفئة',
+      'No feedback yet':'لا توجد ملاحظات بعد',
+      'Your submitted feedback will appear here':'ستظهر ملاحظاتك المرسلة هنا',
+    'Revenue goal:':'هدف الايرادات:',
+    'Set your revenue goal in onboarding to tailor guidance.':'حدد هدف الايرادات في الاعداد الاولي لتخصيص الارشادات.',
+    'No transactions found':'لا توجد معاملات',
+    'Try adjusting your search or filter':'حاول تعديل البحث او الفلتر',
+    'No expenses recorded':'لا توجد مصروفات مسجلة',
+    'Add your first expense above':'اضف اول مصروف بالاعلى',
+    'No data':'لا توجد بيانات',
+    'Spending by category':'الانفاق حسب الفئة',
+    'Tax report ->':'تقرير ضريبي ->',
+    'Business expenses':'مصروفات العمل',
+    'Personal expenses':'مصروفات شخصية',
+    'Total expenses':'اجمالي المصروفات',
+    'Potentially deductible':'قد تكون قابلة للخصم',
+    'Not deductible':'غير قابلة للخصم',
+    'No income data':'لا توجد بيانات دخل',
+    'No income entries':'لا توجد ادخالات دخل',
+    'No income recorded':'لا يوجد دخل مسجل',
+    'No content entries yet':'لا توجد ادخالات محتوى بعد',
+    'Score breakdown':'تفصيل الدرجة',
+    'Language & currency updated':'تم تحديث اللغة والعملة',
+    'Please sign in first':'يرجى تسجيل الدخول اولا',
+    'Signed in successfully':'تم تسجيل الدخول بنجاح',
+    'You have been logged out':'تم تسجيل الخروج',
+    'Transaction saved':'تم حفظ المعاملة',
+    'Transaction updated':'تم تحديث المعاملة',
+    'Transaction removed':'تم حذف المعاملة',
+    'Feedback submitted':'تم ارسال الملاحظات',
+    'Search transactions...':'ابحث في المعاملات...'
+  }
+};
+
+function rt(text){
+  const dict=RUNTIME_TEXT[profile.lang]||{};
+  return dict[text]||text;
+}
+
+function applyRuntimeI18n(){
+  const app=document.getElementById('screen-app');
+  if(!app) return;
+  app.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(el=>{
+    const p=el.getAttribute('placeholder')||'';
+    const np=rt(p);
+    if(np!==p) el.setAttribute('placeholder',np);
+  });
+  app.querySelectorAll('*').forEach(el=>{
+    if(el.children.length===0){
+      const raw=(el.textContent||'').trim();
+      if(!raw) return;
+      const rep=rt(raw);
+      if(rep!==raw) el.textContent=(el.textContent||'').replace(raw,rep);
+    }
+  });
+}
+
 function fmt(n){
   const rate = CURR_RATES[profile.curr]||1;
   const locale = LANG_LOCALE[profile.lang]||'en-US';
@@ -1201,7 +1437,7 @@ const fmtDate=d=>{const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString(
 ═══════════════════════════════════════════ */
 function showScreen(id){
   if(id==='screen-app' && !authState.isAuthenticated){
-    showToast('Please sign in first', true);
+    showToast(rt('Please sign in first'), true);
     id='screen-login';
   }
   ['screen-login','screen-onboarding','screen-app'].forEach(s=>document.getElementById(s).classList.remove('active'));
@@ -1309,7 +1545,7 @@ async function signInAuth(){
     const full=((md.first_name||'')+' '+(md.last_name||'')).trim();
     profile.name=full||email.split('@')[0];
   }
-  showToast('Signed in successfully');
+  showToast(rt('Signed in successfully'));
   enterDashboard();
 }
 
@@ -1404,7 +1640,7 @@ function obLaunch(){
   document.getElementById('ob-success-type-line').textContent = profile.type+' · '+profile.platforms.length+' platform'+(profile.platforms.length!==1?'s':'');
 }
 function enterDashboard(){
-  if(!authState.isAuthenticated){showToast('Please sign in first',true);showScreen('screen-login');return;}
+  if(!authState.isAuthenticated){showToast(rt('Please sign in first'),true);showScreen('screen-login');return;}
   applyProfileToApp();
   showScreen('screen-app');
   setTimeout(()=>{ showPage('dashboard'); showToast('Welcome to MoneyHub, '+profile.name+'! 🎉'); }, 50);
@@ -1418,7 +1654,7 @@ function applyProfileToApp(){
 
   // ── 2. Dashboard welcome subtitle ──
   const subEl=document.getElementById('dash-sub');
-  if(subEl) subEl.textContent='Your financial command center';
+  if(subEl) subEl.textContent=t('monthlyViewThis');
 
   // ── 3. Sidebar trial label = creator type ──
   const tl=document.getElementById('sb-trial-label');
@@ -1440,8 +1676,8 @@ function applyProfileToApp(){
   const goalEl=document.getElementById('goal-insight-text');
   if(goalEl){
     goalEl.textContent=profile.goal
-      ? 'Revenue goal: '+profile.goal+'. Dashboard tips and score recommendations are adjusted to this goal.'
-      : 'Set your revenue goal in onboarding to tailor guidance.';
+      ? rt('Revenue goal:')+' '+profile.goal
+      : rt('Set your revenue goal in onboarding to tailor guidance.');
   }
 
   // ── 5. Modal platform dropdown = only user's platforms ──
@@ -1466,7 +1702,7 @@ function applyProfileToApp(){
 
   // ── 8. Dashboard topbar title personalised ──
   const dashTitle=document.querySelector('#page-dashboard .tb-title');
-  if(dashTitle && profile.name) dashTitle.textContent='Dashboard';
+  if(dashTitle && profile.name) dashTitle.textContent=t('dashboard');
 
   // ── 9. Creator type badge in sidebar trial block label ──
   const trialLabel=document.querySelector('.trial-label');
@@ -1597,6 +1833,7 @@ function applyI18n(){
   if(modalSave && modalSave.textContent==='Update transaction') modalSave.textContent=t('updateTransaction');
 
   document.querySelectorAll('.logout-btn').forEach(btn=>btn.textContent=t('logout'));
+  applyRuntimeI18n();
 }
 
 /* ═══════════════════════════════════════════
@@ -2380,6 +2617,7 @@ function showPage(page){
     if(taxNet) taxNet.textContent=fmt(netVal);
   }
   applyI18n();
+  applyRuntimeI18n();
 }
 document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.addEventListener('click',()=>showPage(n.dataset.page)));
 
@@ -2393,7 +2631,7 @@ async function logoutUser(){
   localStorage.removeItem(LS_KEYS.session);
   showScreen('screen-login');
   switchAuthTab('signin');
-  showToast('You have been logged out');
+  showToast(rt('You have been logged out'));
 }
 
 function injectTopbarActions(){
@@ -2472,7 +2710,7 @@ async function saveTransaction(){
   transactions.unshift({id:createdId,type:modalType,desc,platform,category,bizper,amount,date});
   nextId=Math.max(...transactions.map(t=>Number(t.id)||0),0)+1;
   saveTransactions();
-  closeModal();showToast('Transaction saved');
+  closeModal();showToast(rt('Transaction saved'));
   const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
 }
 async function deleteTx(id){
@@ -2485,7 +2723,7 @@ async function deleteTx(id){
   transactions=transactions.filter(t=>t.id!==id);
   saveTransactions();
   const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
-  showToast('Transaction removed');
+  showToast(rt('Transaction removed'));
 }
 function editTx(id){
   const t=transactions.find(t=>t.id===id);if(!t)return;
@@ -2536,7 +2774,7 @@ function editTx(id){
     saveTransactions();
     closeModal();btn.textContent=t('saveTransaction');btn.onclick=saveTransaction;
     const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
-    showToast('Transaction updated');
+    showToast(rt('Transaction updated'));
   };
   document.getElementById('modal-bg').classList.add('open');
 }
@@ -2747,7 +2985,7 @@ async function saveFeedback(){
   document.getElementById('fb-email').value='';
   document.getElementById('fb-message').value='';
   await renderFeedbackList();
-  showToast('Feedback submitted');
+  showToast(rt('Feedback submitted'));
 }
 
 async function renderFeedbackList(){

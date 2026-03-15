@@ -1,0 +1,2505 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --accent:#1a6b3c; --accent-mid:#2d8a52; --accent-soft:#eaf4ee; --accent-border:#c3dece;
+  --black:#0f1117; --white:#ffffff;
+  --s1:#f5f6f8; --s2:#ecedf0; --s3:#d8dade; --s4:#a8abb4; --s5:#6b6f7a; --s6:#3d4049;
+  --red:#c0392b; --red-soft:#fdf2f1;
+  --blue:#1d4ed8; --blue-soft:#eff4ff;
+  --gold:#b45309; --gold-soft:#fef3c7;
+  --r-xs:6px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --fi:'Inter',sans-serif;
+  --sh:0 1px 2px rgba(0,0,0,0.04),0 2px 8px rgba(0,0,0,0.04);
+  --sh-md:0 4px 16px rgba(0,0,0,0.08);
+  --sh-lg:0 8px 32px rgba(0,0,0,0.10);
+  --sidebar:216px; --topbar:56px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:14px;}
+body{font-family:var(--fi);background:var(--s1);color:var(--black);min-height:100vh;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--s2);border-radius:99px;}
+
+/* ═══════════════════════════════════════════
+   SCREEN SYSTEM — login / onboarding / app
+═══════════════════════════════════════════ */
+#screen-login    { display:none; min-height:100vh; align-items:center; justify-content:center; position:relative; overflow:hidden; background:var(--s1); }
+#screen-onboarding { display:none; min-height:100vh; }
+#screen-app      { display:none; min-height:100vh; }
+#screen-login.active    { display:flex; }
+#screen-onboarding.active { display:flex; align-items:stretch; }
+#screen-app.active      { display:flex; }
+
+/* ═══════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════ */
+#screen-login::before {
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 60% -10%,rgba(26,107,60,0.07) 0%,transparent 60%),
+             radial-gradient(ellipse 50% 40% at -10% 80%,rgba(26,107,60,0.05) 0%,transparent 55%);
+  pointer-events:none;
+}
+#screen-login::after {
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(var(--s2) 1px,transparent 1px),linear-gradient(90deg,var(--s2) 1px,transparent 1px);
+  background-size:40px 40px;opacity:0.45;pointer-events:none;
+}
+.auth-wrapper {
+  position:relative;z-index:1;
+  display:flex;width:min(940px,calc(100vw - 32px));min-height:560px;
+  background:var(--white);border-radius:var(--r-lg);box-shadow:var(--sh-lg);border:1px solid var(--s2);overflow:hidden;
+  animation:fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.auth-left{width:340px;flex-shrink:0;background:var(--accent);padding:44px 36px;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.auth-left::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,0.06);}
+.auth-left::after{content:'';position:absolute;bottom:-60px;left:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.left-logo{display:flex;align-items:center;gap:10px;margin-bottom:40px;position:relative;z-index:1;}
+.left-logo .logo-mark{width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.2);}
+.left-logo .logo-mark svg{width:16px;height:16px;stroke:white;fill:none;}
+.left-logo .logo-mark img{width:20px;height:20px;object-fit:contain;display:block;}
+.left-logo .logo-name{font-size:15px;font-weight:700;color:white;letter-spacing:-0.01em;}
+.left-headline{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;}
+.left-headline h2{font-size:22px;font-weight:700;color:white;line-height:1.3;letter-spacing:-0.02em;margin-bottom:12px;}
+.left-headline p{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:28px;}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.feature-list li{display:flex;align-items:center;gap:9px;font-size:12.5px;color:rgba(255,255,255,0.85);}
+.feature-check{width:18px;height:18px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.feature-check svg{width:10px;height:10px;stroke:white;fill:none;}
+.auth-left-footer{position:relative;z-index:1;font-size:11px;color:rgba(255,255,255,0.45);}
+.auth-right{flex:1;padding:44px;display:flex;flex-direction:column;justify-content:center;}
+.right-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;}
+.right-logo-mark{width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.right-logo-mark svg{width:18px;height:18px;stroke:white;fill:none;}
+.right-logo-mark img{width:24px;height:24px;object-fit:contain;display:block;}
+.right-logo-name{font-size:22px;font-weight:700;color:var(--black);letter-spacing:-0.03em;}
+.tab-toggle{display:flex;background:var(--s1);border:1px solid var(--s2);border-radius:var(--r-pill);padding:3px;margin-bottom:28px;width:fit-content;}
+.tab-btn{padding:7px 22px;border-radius:var(--r-pill);border:none;background:transparent;font-family:var(--fi);font-size:13px;font-weight:500;color:var(--s5);cursor:pointer;transition:all 0.18s;}
+.tab-btn.active{background:var(--white);color:var(--black);font-weight:600;box-shadow:var(--sh);}
+.form-header{margin-bottom:24px;}
+.form-header h1{font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--black);margin-bottom:5px;}
+.form-header p{font-size:13px;color:var(--s5);}
+.lform-panel{display:none;}
+.lform-panel.active{display:block;}
+.social-row{display:flex;gap:10px;margin-bottom:20px;}
+.social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 14px;border:1px solid var(--s2);border-radius:var(--r-sm);background:var(--white);font-family:var(--fi);font-size:12.5px;font-weight:500;color:var(--s6);cursor:pointer;transition:all 0.15s;}
+.social-btn:hover{border-color:var(--s3);background:var(--s1);box-shadow:var(--sh);}
+.social-btn svg{width:16px;height:16px;flex-shrink:0;}
+.auth-divider{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.auth-divider-line{flex:1;height:1px;background:var(--s2);}
+.auth-divider-text{font-size:11px;font-weight:500;color:var(--s4);letter-spacing:0.04em;text-transform:uppercase;}
+.lfield-group{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+.lfield-row{display:flex;gap:12px;}
+.lfield-row .lfield{flex:1;}
+.lfield{display:flex;flex-direction:column;gap:5px;}
+.lfield label{font-size:12px;font-weight:600;color:var(--s6);letter-spacing:0.01em;}
+.lfield input{height:38px;padding:0 12px;border:1px solid var(--s2);border-radius:var(--r-sm);background:var(--white);font-family:var(--fi);font-size:13px;color:var(--black);outline:none;transition:border-color 0.15s,box-shadow 0.15s;}
+.lfield input::placeholder{color:var(--s4);}
+.lfield input:focus{border-color:var(--accent-mid);box-shadow:0 0 0 3px rgba(26,107,60,0.10);}
+.input-wrap{position:relative;}
+.input-wrap input{width:100%;padding-right:38px;}
+.eye-btn{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--s4);display:flex;align-items:center;padding:2px;transition:color 0.15s;}
+.eye-btn:hover{color:var(--s6);}
+.eye-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;}
+.extras-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.checkbox-wrap{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.checkbox-wrap input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;}
+.checkbox-wrap span{font-size:12.5px;color:var(--s5);}
+.link-btn{background:none;border:none;font-family:var(--fi);font-size:12.5px;font-weight:500;color:var(--accent);cursor:pointer;padding:0;transition:color 0.15s;}
+.link-btn:hover{color:var(--accent-mid);text-decoration:underline;}
+.cta-btn{width:100%;height:40px;background:var(--accent);color:white;border:none;border-radius:var(--r-sm);font-family:var(--fi);font-size:13.5px;font-weight:600;cursor:pointer;transition:background 0.15s,box-shadow 0.15s,transform 0.1s;letter-spacing:-0.01em;}
+.cta-btn:hover{background:var(--accent-mid);box-shadow:0 4px 12px rgba(26,107,60,0.25);}
+.cta-btn:active{transform:translateY(1px);}
+.terms-note{margin-top:14px;text-align:center;font-size:11.5px;color:var(--s4);line-height:1.6;}
+.terms-note a{color:var(--s5);text-decoration:none;}
+.terms-note a:hover{text-decoration:underline;}
+.strength-bar{display:flex;gap:4px;margin-top:6px;}
+.strength-seg{flex:1;height:3px;border-radius:99px;background:var(--s2);transition:background 0.2s;}
+.strength-label{font-size:11px;color:var(--s4);margin-top:4px;}
+@media(max-width:700px){.auth-left{display:none;}.auth-right{padding:32px 24px;}.auth-wrapper{width:calc(100vw - 24px);min-height:unset;}}
+
+/* ═══════════════════════════════════════════
+   ONBOARDING
+═══════════════════════════════════════════ */
+.ob-left{width:280px;flex-shrink:0;background:var(--white);border-right:1px solid var(--s2);display:flex;flex-direction:column;padding:30px 26px;}
+.ob-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+.ob-logo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.ob-logo-mark svg{width:14px;height:14px;stroke:white;fill:none;}
+.ob-logo-mark img{width:18px;height:18px;object-fit:contain;display:block;}
+.ob-logo-name{font-size:14px;font-weight:700;color:var(--black);letter-spacing:-0.01em;}
+.ob-headline{margin-bottom:28px;}
+.ob-headline h1{font-size:20px;font-weight:700;line-height:1.25;color:var(--black);letter-spacing:-0.02em;margin-bottom:8px;}
+.ob-headline h1 em{font-style:italic;color:var(--accent);}
+.ob-headline p{font-size:12px;color:var(--s5);line-height:1.6;}
+.ob-steps{position:relative;flex:1;padding-bottom:24px;}
+.ob-steps::before{content:'';position:absolute;left:11px;top:12px;bottom:12px;width:1px;background:var(--s2);}
+.ob-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;position:relative;}
+.ob-step:last-child{margin-bottom:0;}
+.ob-dot{width:23px;height:23px;border-radius:50%;border:1.5px solid var(--s3);background:var(--white);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--s4);transition:all 0.3s;z-index:1;}
+.ob-step.done .ob-dot{background:var(--accent);border-color:var(--accent);color:white;}
+.ob-step.active .ob-dot{background:var(--white);border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.ob-step-label{font-size:12px;font-weight:600;color:var(--s4);transition:color 0.3s;margin-bottom:1px;padding-top:2px;}
+.ob-step.active .ob-step-label{color:var(--black);}
+.ob-step.done .ob-step-label{color:var(--accent);}
+.ob-step-desc{font-size:11px;color:var(--s3);}
+.ob-step.active .ob-step-desc{color:var(--s4);}
+.ob-step.done .ob-step-desc{color:var(--accent-border);}
+.ob-footer{padding-top:18px;border-top:1px solid var(--s2);font-size:11px;color:var(--s4);}
+.ob-footer span{color:var(--accent);cursor:pointer;font-weight:500;}
+.ob-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;overflow-y:auto;}
+.ob-form{width:100%;max-width:500px;}
+.ob-progress{height:3px;background:var(--s2);border-radius:999px;margin-bottom:28px;overflow:hidden;}
+.ob-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width 0.4s cubic-bezier(0.4,0,0.2,1);}
+.ob-panel{display:none;animation:obIn 0.28s cubic-bezier(0.4,0,0.2,1);}
+.ob-panel.active{display:block;}
+@keyframes obIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.ob-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--s4);margin-bottom:6px;}
+.ob-title{font-size:22px;font-weight:700;color:var(--black);letter-spacing:-0.02em;line-height:1.25;margin-bottom:6px;}
+.ob-sub{font-size:12px;color:var(--s5);line-height:1.6;margin-bottom:24px;}
+.ob-creator-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px;}
+.ob-creator-card{background:var(--white);border:1.5px solid var(--s2);border-radius:var(--r-md);padding:14px 13px;cursor:pointer;transition:all 0.15s;position:relative;box-shadow:var(--sh);}
+.ob-creator-card:hover{border-color:var(--accent-border);background:var(--accent-soft);transform:translateY(-1px);box-shadow:var(--sh-md);}
+.ob-creator-card.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent),var(--sh);}
+.ob-creator-card.selected .ob-cc-check{opacity:1;transform:scale(1);}
+.ob-cc-check{position:absolute;top:10px;right:10px;width:18px;height:18px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0.5);transition:all 0.18s;}
+.ob-cc-check svg{width:10px;height:10px;stroke:white;fill:none;stroke-width:2.5;}
+.ob-cc-emoji{font-size:20px;margin-bottom:6px;display:block;}
+.ob-cc-name{font-size:12px;font-weight:700;color:var(--black);margin-bottom:2px;}
+.ob-cc-desc{font-size:11px;color:var(--s5);}
+.ob-platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:20px;}
+.ob-platform-pill{background:var(--white);border:1.5px solid var(--s2);border-radius:var(--r-sm);padding:10px 9px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.15s;box-shadow:var(--sh);}
+.ob-platform-pill:hover{border-color:var(--accent-border);background:var(--accent-soft);}
+.ob-platform-pill.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent);}
+.ob-platform-pill.selected .ob-pp-check{opacity:1;}
+.ob-pp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.ob-pp-label{font-size:12px;font-weight:500;color:var(--black);flex:1;}
+.ob-pp-check{width:14px;height:14px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s;flex-shrink:0;}
+.ob-pp-check svg{width:8px;height:8px;stroke:white;fill:none;stroke-width:3;}
+.ob-goal-list{display:flex;flex-direction:column;gap:7px;margin-bottom:22px;}
+.ob-goal-item{background:var(--white);border:1.5px solid var(--s2);border-radius:var(--r-sm);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.15s;box-shadow:var(--sh);}
+.ob-goal-item:hover{border-color:var(--accent-border);background:var(--accent-soft);}
+.ob-goal-item.selected{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent);}
+.ob-goal-item.selected .ob-goal-radio{background:var(--accent);border-color:var(--accent);}
+.ob-goal-item.selected .ob-goal-radio::after{opacity:1;transform:scale(1);}
+.ob-goal-radio{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--s3);flex-shrink:0;position:relative;transition:all 0.15s;}
+.ob-goal-radio::after{content:'';position:absolute;inset:3px;background:white;border-radius:50%;opacity:0;transform:scale(0.4);transition:all 0.15s;}
+.ob-goal-name{font-size:13px;font-weight:600;color:var(--black);margin-bottom:2px;}
+.ob-goal-desc{font-size:11px;color:var(--s5);}
+.ob-goal-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--gold-soft);color:var(--gold);white-space:nowrap;flex-shrink:0;border:1px solid #fde68a;}
+.ob-field-group{margin-bottom:14px;}
+.ob-field-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--s4);margin-bottom:6px;}
+.ob-field-inp{width:100%;background:var(--white);border:1px solid var(--s2);border-radius:var(--r-sm);padding:11px 13px;font-family:var(--fi);font-size:13px;color:var(--black);outline:none;transition:border-color 0.12s;box-shadow:var(--sh);}
+.ob-field-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.ob-field-inp::placeholder{color:var(--s3);}
+.ob-review-block{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh);}
+.ob-review-section{padding:12px 16px;border-bottom:1px solid var(--s2);}
+.ob-review-section:last-child{border-bottom:none;}
+.ob-review-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.ob-review-key{font-size:11px;color:var(--s4);font-weight:500;flex-shrink:0;padding-top:1px;}
+.ob-review-val{font-size:13px;font-weight:600;color:var(--black);text-align:right;}
+.ob-review-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.ob-review-chip{background:var(--accent-soft);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;}
+.ob-success{text-align:center;padding:16px 0;}
+.ob-success-icon{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 4px 20px rgba(26,107,60,0.2);animation:obIconPop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes obIconPop{from{transform:scale(0.3) rotate(-10deg);opacity:0;}to{transform:none;opacity:1;}}
+.ob-success-icon svg{width:26px;height:26px;stroke:white;fill:none;stroke-width:2.5;}
+.ob-success-title{font-size:24px;font-weight:700;color:var(--black);letter-spacing:-0.02em;margin-bottom:8px;}
+.ob-success-title em{font-style:italic;color:var(--accent);}
+.ob-success-sub{font-size:12px;color:var(--s5);max-width:340px;margin:0 auto 24px;line-height:1.6;}
+.ob-profile-pill{display:inline-flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--s2);border-radius:999px;padding:6px 14px 6px 6px;margin-bottom:22px;box-shadow:var(--sh);}
+.ob-profile-avatar{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;}
+.ob-profile-name{font-size:12px;font-weight:600;color:var(--black);}
+.ob-profile-type{font-size:11px;color:var(--s4);}
+.ob-hint{font-size:11px;color:var(--s4);margin-top:-16px;margin-bottom:18px;}
+.ob-btn-row{display:flex;gap:8px;}
+.ob-btn-primary{flex:1;background:var(--accent);color:white;border:none;border-radius:999px;padding:11px 20px;font-family:var(--fi);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.12s;letter-spacing:-0.01em;}
+.ob-btn-primary:hover{background:var(--accent-mid);}
+.ob-btn-primary:disabled{opacity:0.35;cursor:not-allowed;}
+.ob-btn-ghost{background:transparent;color:var(--s5);border:1px solid var(--s2);border-radius:999px;padding:11px 18px;font-family:var(--fi);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;}
+.ob-btn-ghost:hover{background:var(--s1);border-color:var(--s3);color:var(--black);}
+.ob-btn-full{width:100%;background:var(--accent);color:white;border:none;border-radius:999px;padding:13px 20px;font-family:var(--fi);font-size:14px;font-weight:600;cursor:pointer;transition:background 0.12s;letter-spacing:-0.01em;display:flex;align-items:center;justify-content:center;gap:8px;}
+.ob-btn-full:hover{background:var(--accent-mid);}
+.ob-btn-full svg{width:15px;height:15px;stroke:white;fill:none;}
+
+/* ═══════════════════════════════════════════
+   APP — SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--s2);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:30;}
+.sb-logo{height:var(--topbar);padding:0 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--s2);flex-shrink:0;}
+.sb-logo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-logo-mark svg{width:14px;height:14px;stroke:white;fill:none;}
+.sb-logo-mark img{width:18px;height:18px;object-fit:contain;display:block;}
+.sb-logo-name{font-size:14px;font-weight:700;color:var(--black);letter-spacing:-0.01em;}
+.sb-nav{padding:12px 10px;flex:1;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.sb-section{padding:14px 10px 4px;font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--s3);}
+.sb-section:first-child{padding-top:4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r-sm);font-size:13px;font-weight:400;color:var(--s5);cursor:pointer;transition:background 0.1s,color 0.1s;user-select:none;}
+.nav-item:hover{background:var(--s1);color:var(--black);}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+.nav-item svg{width:15px;height:15px;stroke:currentColor;fill:none;flex-shrink:0;opacity:0.7;}
+.nav-item.active svg{opacity:1;}
+.nav-badge{margin-left:auto;background:var(--s2);color:var(--s5);font-size:10px;font-weight:600;padding:1px 6px;border-radius:var(--r-pill);min-width:18px;text-align:center;}
+.nav-item.active .nav-badge{background:var(--accent-border);color:var(--accent);}
+.sb-footer{padding:12px 10px;border-top:1px solid var(--s2);flex-shrink:0;}
+.trial-block{border:1px solid var(--accent-border);border-radius:var(--r-sm);padding:10px 11px;margin-bottom:8px;background:var(--accent-soft);}
+.trial-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.trial-label{font-size:11px;font-weight:600;color:var(--accent);}
+.trial-days{font-size:11px;color:var(--accent-mid);}
+.trial-track{height:3px;background:var(--accent-border);border-radius:99px;overflow:hidden;}
+.trial-fill{height:100%;width:22%;background:var(--accent);border-radius:99px;}
+.lang-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r-sm);background:var(--s1);border:1px solid var(--s2);cursor:pointer;transition:background 0.1s;}
+.lang-row:hover{background:var(--s2);}
+.lang-row span{font-size:12px;color:var(--s5);}
+.lang-row b{font-size:12px;font-weight:600;color:var(--black);}
+
+/* ═══════════════════════════════════════════
+   APP — MAIN / TOPBAR / LAYOUT
+═══════════════════════════════════════════ */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{height:var(--topbar);background:var(--white);border-bottom:1px solid var(--s2);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;}
+.tb-left{display:flex;flex-direction:column;gap:1px;}
+.tb-title{font-size:14px;font-weight:700;color:var(--black);letter-spacing:-0.01em;}
+.tb-sub{font-size:11px;color:var(--s4);}
+.tb-title-main{font-size:22px;font-weight:800;color:var(--black);letter-spacing:-0.02em;line-height:1;}
+.tb-sub-main{font-size:12px;color:var(--s5);margin-top:2px;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--accent);color:white;border:none;border-radius:var(--r-pill);padding:8px 16px;font-family:var(--fi);font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;white-space:nowrap;letter-spacing:-0.01em;}
+.btn-primary:hover{background:var(--accent-mid);}
+.btn-secondary{background:transparent;color:var(--s6);border:1px solid var(--s3);border-radius:var(--r-pill);padding:8px 14px;font-family:var(--fi);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;white-space:nowrap;}
+.btn-secondary:hover{background:var(--s1);border-color:var(--s4);}
+.avatar{width:30px;height:30px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;cursor:pointer;border:2px solid var(--accent-border);}
+.sub-tabs{background:var(--white);border-bottom:1px solid var(--s2);padding:0 24px;display:flex;gap:0;flex-shrink:0;}
+.stab{padding:12px 16px;font-size:12px;font-weight:500;color:var(--s4);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.12s;white-space:nowrap;}
+.stab:hover{color:var(--s6);}
+.stab.active{color:var(--black);border-bottom-color:var(--black);font-weight:600;}
+.stab[data-scope], .stab[data-range]{cursor:pointer;}
+
+.theme-toggle{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r-sm);background:var(--s1);border:1px solid var(--s2);margin-bottom:8px;}
+.theme-toggle span{font-size:12px;color:var(--s5);}
+.theme-switch{width:36px;height:20px;border-radius:999px;border:1px solid var(--s3);background:var(--s2);position:relative;cursor:pointer;transition:all 0.18s;}
+.theme-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--white);box-shadow:0 1px 2px rgba(0,0,0,0.2);transition:transform 0.18s;}
+.theme-switch.on{background:var(--accent);border-color:var(--accent);}
+.theme-switch.on::after{transform:translateX(16px);}
+
+body.theme-dark{
+  --accent:#46b87c; --accent-mid:#6fd59a; --accent-soft:#173224; --accent-border:#2d6146;
+  --black:#f3f5f8; --white:#1a1f27;
+  --s1:#0f1318; --s2:#222935; --s3:#364154; --s4:#8390a7; --s5:#b6c0d1; --s6:#d8deea;
+  --red:#ff6b6b; --red-soft:#3a2024;
+  --blue:#7aa2ff; --blue-soft:#1c2740;
+  --gold:#f6c15f; --gold-soft:#3f3115;
+}
+body.theme-dark .auth-wrapper, body.theme-dark .card, body.theme-dark .mc, body.theme-dark .topbar, body.theme-dark .sub-tabs, body.theme-dark .sidebar, body.theme-dark .modal, body.theme-dark .lang-modal{box-shadow:none;}
+.content{padding:20px 24px;flex:1;}
+.page{animation:pgIn 0.15s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* ═══════════════════════════════════════════
+   METRIC CARDS
+═══════════════════════════════════════════ */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.mc{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--sh);transition:box-shadow 0.15s;}
+.mc:hover{box-shadow:var(--sh-md);}
+.mc.dark{background:var(--black);border-color:var(--black);}
+.mc-label{font-size:11px;font-weight:500;color:var(--s4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px;}
+.mc.dark .mc-label{color:rgba(255,255,255,0.4);}
+.mc-val{font-size:26px;font-weight:700;color:var(--black);letter-spacing:-0.5px;line-height:1;}
+.mc.dark .mc-val{color:var(--white);}
+.mc-sub{display:inline-flex;align-items:center;gap:3px;margin-top:7px;font-size:11px;padding:2px 8px;border-radius:var(--r-pill);font-weight:500;}
+.mc-sub.up{background:var(--accent-soft);color:var(--accent);}
+.mc-sub.dn{background:var(--red-soft);color:var(--red);}
+.mc-sub.nu{background:var(--blue-soft);color:var(--blue);}
+.mc-sub.gray{background:var(--s1);color:var(--s5);}
+
+/* FORECAST */
+.forecast{background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--r-md);padding:14px 18px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.fc-icon{width:32px;height:32px;background:var(--accent);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fc-icon svg{width:16px;height:16px;stroke:white;fill:none;}
+.fc-body{flex:1;}
+.fc-title{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:2px;}
+.fc-desc{font-size:12px;color:var(--accent-mid);line-height:1.5;}
+.fc-amount{font-size:18px;font-weight:700;color:var(--accent);white-space:nowrap;letter-spacing:-0.3px;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g31{display:grid;grid-template-columns:1.9fr 1fr;gap:12px;margin-bottom:12px;}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);box-shadow:var(--sh);overflow:hidden;}
+.card-head{padding:14px 18px 0;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:600;color:var(--black);}
+.card-link{font-size:12px;color:var(--accent);cursor:pointer;font-weight:500;}
+.card-link:hover{text-decoration:underline;}
+.card-body{padding:12px 18px 16px;}
+.mini-tabs{display:flex;background:var(--s1);border:1px solid var(--s2);border-radius:var(--r-pill);padding:2px;width:fit-content;}
+.mini-tab{padding:5px 13px;border-radius:var(--r-pill);font-size:11px;font-weight:500;color:var(--s5);cursor:pointer;transition:all 0.12s;}
+.mini-tab.active{background:var(--white);color:var(--black);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,0.06);}
+
+/* PLATFORM INCOME LIST */
+.platform-income-list{display:flex;flex-direction:column;gap:0;}
+.pi-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--s2);}
+.pi-row:last-child{border-bottom:none;}
+.pi-logo{width:28px;height:28px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.pi-info{flex:1;min-width:0;}
+.pi-name{font-size:12px;font-weight:600;color:var(--black);}
+.pi-pct{font-size:10px;color:var(--s4);margin-top:1px;}
+.pi-bar-wrap{width:80px;height:4px;background:var(--s2);border-radius:99px;overflow:hidden;flex-shrink:0;}
+.pi-bar{height:100%;border-radius:99px;}
+.pi-amount{font-size:13px;font-weight:700;color:var(--black);min-width:52px;text-align:right;}
+
+/* EXPENSE TOGGLES */
+.exp-toggle-list{display:flex;flex-direction:column;gap:0;}
+.et-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--s2);cursor:pointer;transition:background 0.1s;}
+.et-row:last-child{border-bottom:none;}
+.et-row:hover{background:var(--s1);margin:0 -18px;padding-left:18px;padding-right:18px;}
+.et-logo{width:28px;height:28px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--s1);}
+.et-logo svg{width:13px;height:13px;stroke:var(--s5);fill:none;}
+.et-info{flex:1;}
+.et-name{font-size:12px;font-weight:500;color:var(--black);}
+.et-meta{font-size:11px;color:var(--s4);margin-top:1px;}
+.et-right{display:flex;align-items:center;gap:8px;}
+.tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:0.04em;}
+.tag-biz{background:var(--blue-soft);color:var(--blue);}
+.tag-per{background:var(--s1);color:var(--s5);border:1px solid var(--s2);}
+.et-amount{font-size:12px;font-weight:700;color:var(--red);}
+.et-toggle{width:28px;height:16px;background:var(--s2);border-radius:99px;position:relative;flex-shrink:0;transition:background 0.2s;cursor:pointer;}
+.et-toggle.on{background:var(--accent);}
+.et-toggle-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--white);border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.15);}
+.et-toggle.on .et-toggle-knob{transform:translateX(12px);}
+
+/* DONUT */
+.donut-wrap{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.donut-center-val{font-size:20px;font-weight:700;color:var(--black);letter-spacing:-0.5px;line-height:1;}
+.donut-center-label{font-size:10px;color:var(--s4);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;}
+.donut-legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:14px;width:100%;}
+.dl-item{display:flex;align-items:center;gap:7px;}
+.dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.dl-name{font-size:11px;color:var(--s5);flex:1;}
+.dl-pct{font-size:11px;font-weight:700;color:var(--black);}
+
+/* TREND CHART */
+.trend-header{padding:14px 18px 0;display:flex;align-items:center;justify-content:space-between;}
+.trend-stats{display:flex;gap:16px;padding:10px 18px 0;}
+.ts-item{display:flex;flex-direction:column;gap:2px;}
+.ts-val{font-size:15px;font-weight:700;color:var(--black);letter-spacing:-0.3px;}
+.ts-label{font-size:10px;color:var(--s4);text-transform:uppercase;letter-spacing:0.06em;}
+.ts-change{font-size:10px;font-weight:600;padding:1px 6px;border-radius:var(--r-pill);margin-top:1px;}
+.ts-change.up{background:var(--accent-soft);color:var(--accent);}
+.ts-change.dn{background:var(--red-soft);color:var(--red);}
+.ts-divider{width:1px;background:var(--s2);align-self:stretch;}
+
+/* TX TABLE */
+.tx-head{display:grid;grid-template-columns:2.4fr 1fr 1fr 1fr 80px;gap:8px;padding:8px 18px;background:var(--s1);border-bottom:1px solid var(--s2);}
+.tx-hc{font-size:10px;font-weight:600;color:var(--s4);text-transform:uppercase;letter-spacing:0.07em;}
+.tx-row{display:grid;grid-template-columns:2.4fr 1fr 1fr 1fr 80px;gap:8px;padding:11px 18px;border-bottom:1px solid var(--s2);align-items:center;transition:background 0.1s;}
+.tx-row:last-child{border-bottom:none;}
+.tx-row:hover{background:var(--s1);}
+.tx-nw{display:flex;align-items:center;gap:10px;}
+.tx-pllogo{width:26px;height:26px;border-radius:5px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.tx-badge{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tx-badge svg{width:11px;height:11px;fill:none;stroke:currentColor;}
+.tx-badge.in{background:var(--accent-soft);color:var(--accent);}
+.tx-badge.ex{background:var(--red-soft);color:var(--red);}
+.tx-name{font-size:13px;font-weight:500;color:var(--black);}
+.tx-meta{font-size:11px;color:var(--s4);margin-top:1px;}
+.tx-cell{font-size:12px;color:var(--s5);}
+.tx-amount{font-size:13px;font-weight:600;}
+.tx-amount.pos{color:var(--accent);}
+.tx-amount.neg{color:var(--red);}
+.tx-actions{display:flex;gap:4px;}
+.tx-btn{padding:4px 9px;border-radius:var(--r-pill);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--s2);background:var(--white);color:var(--s5);transition:all 0.1s;font-family:var(--fi);}
+.tx-btn:hover{background:var(--s1);}
+.tx-btn.del{border-color:transparent;color:var(--s3);}
+.tx-btn.del:hover{background:var(--red-soft);color:var(--red);}
+
+/* SEARCH */
+.search-row{display:flex;gap:6px;margin-bottom:14px;align-items:center;}
+.search-wrap{flex:1;position:relative;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--s4);fill:none;pointer-events:none;}
+.search-inp{width:100%;background:var(--white);border:1px solid var(--s2);border-radius:var(--r-pill);padding:8px 14px 8px 32px;font-family:var(--fi);font-size:13px;color:var(--black);outline:none;transition:border-color 0.12s;}
+.search-inp:focus{border-color:var(--accent);}
+.search-inp::placeholder{color:var(--s3);}
+.filter-btn{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-pill);padding:8px 13px;font-size:12px;font-weight:500;color:var(--s5);cursor:pointer;white-space:nowrap;font-family:var(--fi);transition:all 0.1s;}
+.filter-btn:hover{background:var(--s1);}
+.filter-btn.active{background:var(--black);color:white;border-color:var(--black);}
+
+/* PROGRESS */
+.prog{margin-bottom:12px;}
+.prog:last-child{margin-bottom:0;}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prog-label{font-size:12px;color:var(--s5);}
+.prog-value{font-size:12px;font-weight:600;color:var(--black);}
+.prog-track{height:6px;background:var(--s2);border-radius:99px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:99px;}
+
+/* INSIGHT */
+.insight{background:var(--accent-soft);border-radius:var(--r-sm);padding:10px 12px;margin-top:12px;font-size:12px;color:var(--accent);line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+.insight-dot{width:14px;height:14px;background:var(--accent);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.insight-dot svg{width:8px;height:8px;stroke:white;fill:none;}
+
+/* ═══════════════════════════════════════════
+   INCOME PAGE — light theme matching app
+═══════════════════════════════════════════ */
+/* KPI strip */
+.income-kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;}
+.ikpi{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--sh);transition:box-shadow .15s;}
+.ikpi:hover{box-shadow:var(--sh-md);}
+.ikpi.ikpi-accent{background:var(--black);border-color:var(--black);}
+.ikpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--s4);margin-bottom:6px;}
+.ikpi.ikpi-accent .ikpi-label{color:rgba(255,255,255,.4);}
+.ikpi-val{font-size:22px;font-weight:700;color:var(--black);letter-spacing:-.5px;line-height:1;margin-bottom:4px;}
+.ikpi.ikpi-accent .ikpi-val{color:var(--white);}
+.ikpi-sub{font-size:11px;color:var(--s5);line-height:1.4;}
+.ikpi-badge{display:inline-flex;align-items:center;gap:3px;margin-top:6px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-pill);}
+.ikpi-badge.up{background:var(--accent-soft);color:var(--accent);}
+.ikpi-badge.dn{background:var(--red-soft);color:var(--red);}
+.ikpi-badge.nu{background:var(--blue-soft);color:var(--blue);}
+
+/* Platform bars — light */
+.ipl-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.ipl-row:last-of-type{margin-bottom:0;}
+.ipl-name{font-size:12px;font-weight:500;color:var(--s5);min-width:88px;text-align:right;flex-shrink:0;}
+.ipl-bar-wrap{flex:1;height:26px;background:var(--s2);border-radius:var(--r-xs);overflow:hidden;}
+.ipl-bar-fill{height:100%;border-radius:var(--r-xs);display:flex;align-items:center;padding-left:10px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:56px;}
+.ipl-amount{font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
+.ipl-pct{font-size:10px;color:var(--s4);margin-left:auto;padding-right:8px;flex-shrink:0;min-width:32px;text-align:right;}
+
+/* AI tip */
+.ai-tip-banner{background:var(--gold-soft);border:1px solid #fde68a;border-radius:var(--r-sm);padding:10px 14px;margin-top:14px;font-size:12px;color:var(--gold);line-height:1.5;display:flex;align-items:flex-start;gap:8px;}
+.ai-tip-banner svg{width:14px;height:14px;stroke:var(--gold);fill:none;flex-shrink:0;margin-top:1px;}
+
+/* Income sub-tabs */
+.income-tabs-bar{display:flex;gap:0;background:var(--white);border-bottom:1px solid var(--s2);padding:0 24px;margin:-20px -24px 16px;flex-shrink:0;}
+.income-tab{padding:11px 16px 13px;font-size:12px;font-weight:500;color:var(--s4);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;white-space:nowrap;user-select:none;}
+.income-tab:hover{color:var(--s6);}
+.income-tab.active{color:var(--black);border-bottom-color:var(--accent);font-weight:600;}
+
+/* ═══════════════════════════════════════════
+   CONTENT P&L TRACKER
+═══════════════════════════════════════════ */
+.pl-table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr 80px;gap:8px;padding:8px 18px;background:var(--s1);border-bottom:1px solid var(--s2);}
+.pl-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1.2fr 80px;gap:8px;padding:12px 18px;border-bottom:1px solid var(--s2);align-items:center;transition:background .1s;}
+.pl-row:last-child{border-bottom:none;}
+.pl-row:hover{background:var(--s1);}
+.pl-title-cell{display:flex;flex-direction:column;gap:2px;}
+.pl-title{font-size:13px;font-weight:500;color:var(--black);}
+.pl-type{font-size:11px;color:var(--s4);}
+.pl-cell{font-size:12px;color:var(--s5);}
+.pl-spent{font-size:13px;font-weight:600;color:var(--red);}
+.pl-earned{font-size:13px;font-weight:600;color:var(--accent);}
+.pl-net{font-size:13px;font-weight:700;}
+.pl-net.profit{color:var(--accent);}
+.pl-net.loss{color:var(--red);}
+.pl-net.even{color:var(--s4);}
+.pl-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.04em;}
+.pl-badge.profit{background:var(--accent-soft);color:var(--accent);}
+.pl-badge.loss{background:var(--red-soft);color:var(--red);}
+.pl-badge.even{background:var(--s1);color:var(--s5);border:1px solid var(--s2);}
+/* Inline bar comparison */
+.pl-bars{display:flex;flex-direction:column;gap:3px;min-width:120px;}
+.pl-bar-row{display:flex;align-items:center;gap:5px;}
+.pl-bar-label{font-size:9px;color:var(--s4);width:36px;flex-shrink:0;text-align:right;}
+.pl-bar-track{flex:1;height:5px;background:var(--s2);border-radius:99px;overflow:hidden;}
+.pl-bar-fill{height:100%;border-radius:99px;}
+/* Add content form */
+.pl-add-form{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:16px 18px;margin-bottom:14px;box-shadow:var(--sh);}
+.pl-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.pl-insight{background:var(--s1);border:1px solid var(--s2);border-radius:var(--r-xs);padding:7px 10px;margin-top:6px;font-size:11px;color:var(--s5);line-height:1.5;}
+
+/* ═══════════════════════════════════════════
+   FINANCIAL HEALTH SCORE
+═══════════════════════════════════════════ */
+.fhs-wrap{display:grid;grid-template-columns:200px 1fr;gap:16px;margin-bottom:16px;}
+.fhs-gauge{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:20px;display:flex;flex-direction:column;align-items:center;box-shadow:var(--sh);}
+.fhs-ring-wrap{position:relative;width:130px;height:130px;}
+.fhs-ring-svg{width:130px;height:130px;}
+.fhs-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.fhs-score-num{font-size:30px;font-weight:700;color:var(--black);letter-spacing:-.5px;line-height:1;}
+.fhs-score-denom{font-size:11px;color:var(--s4);margin-top:1px;}
+.fhs-status{margin-top:10px;font-size:11px;font-weight:600;}
+.fhs-desc{margin-top:6px;font-size:11px;color:var(--s5);text-align:center;line-height:1.5;}
+.fhs-factors{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:16px 18px;box-shadow:var(--sh);}
+.fhs-factor{margin-bottom:14px;}
+.fhs-factor:last-child{margin-bottom:0;}
+.fhs-factor-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.fhs-factor-label{font-size:12px;font-weight:500;color:var(--black);}
+.fhs-factor-val{font-size:12px;font-weight:600;}
+.fhs-factor-sub{font-size:10px;color:var(--s4);margin-bottom:5px;}
+.fhs-track{height:6px;background:var(--s2);border-radius:99px;overflow:hidden;}
+.fhs-bar{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.fhs-tip{background:var(--accent-soft);border:1px solid var(--accent-border);border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:var(--accent);line-height:1.5;display:flex;gap:8px;margin-top:12px;}
+.fhs-tip svg{width:14px;height:14px;stroke:var(--accent);fill:none;flex-shrink:0;margin-top:1px;}
+
+/* Budget settings mini-form */
+.fhs-settings{background:var(--white);border:1px solid var(--s2);border-radius:var(--r-md);padding:16px 18px;margin-bottom:14px;box-shadow:var(--sh);}
+.fhs-settings-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+#modal-bg{display:none;position:fixed;inset:0;background:rgba(15,17,23,0.4);z-index:100;align-items:center;justify-content:center;}
+#modal-bg.open{display:flex;}
+.modal{background:var(--white);border-radius:var(--r-lg);padding:24px;width:460px;max-width:94vw;box-shadow:var(--sh-md);animation:mIn 0.18s ease;}
+@keyframes mIn{from{opacity:0;transform:scale(0.97) translateY(6px);}to{opacity:1;transform:none;}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-title{font-size:15px;font-weight:700;color:var(--black);}
+.modal-close{width:28px;height:28px;border-radius:var(--r-xs);background:var(--s1);border:1px solid var(--s2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--s5);font-size:14px;transition:all 0.1s;}
+.modal-close:hover{background:var(--s2);}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;background:var(--s1);border-radius:var(--r-sm);padding:3px;border:1px solid var(--s2);}
+.type-btn{border-radius:6px;padding:8px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.12s;border:none;font-family:var(--fi);}
+.type-btn.t-inc{background:var(--white);color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.type-btn.t-exp{background:var(--white);color:var(--red);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.type-btn.t-off{background:transparent;color:var(--s4);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-full{grid-column:span 2;}
+.field-label{font-size:11px;font-weight:600;color:var(--s5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;}
+.field-inp{width:100%;background:var(--s1);border:1px solid var(--s2);border-radius:var(--r-sm);padding:9px 11px;font-family:var(--fi);font-size:13px;color:var(--black);outline:none;transition:border-color 0.12s,background 0.12s;}
+.field-inp:focus{border-color:var(--accent);background:var(--white);}
+select.field-inp{cursor:pointer;}
+.modal-footer{display:flex;gap:8px;margin-top:18px;}
+
+/* EMPTY / TOAST */
+.empty{text-align:center;padding:40px 20px;}
+.empty-title{font-size:14px;font-weight:600;color:var(--s4);margin-bottom:4px;}
+.empty-sub{font-size:12px;color:var(--s3);}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--black);color:var(--white);padding:10px 16px;border-radius:var(--r-md);font-size:12px;font-weight:500;box-shadow:var(--sh-md);z-index:200;display:flex;align-items:center;gap:8px;transform:translateY(60px);opacity:0;transition:all 0.2s cubic-bezier(0.23,1,0.32,1);pointer-events:none;}
+.toast.show{transform:none;opacity:1;}
+.toast-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.toast-dot.err{background:var(--red);}
+
+/* ═══════════════════════════════════════════
+   LANGUAGE / CURRENCY MODAL
+═══════════════════════════════════════════ */
+#lang-modal-bg{display:none;position:fixed;inset:0;background:rgba(15,17,23,0.4);z-index:300;align-items:flex-end;justify-content:flex-start;}
+#lang-modal-bg.open{display:flex;}
+.lang-modal{background:var(--white);border-radius:var(--r-lg);padding:0;width:380px;max-width:94vw;box-shadow:var(--sh-lg);margin:0 0 80px 12px;animation:mIn 0.18s ease;overflow:hidden;}
+.lang-modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--s2);}
+.lang-modal-title{font-size:14px;font-weight:700;color:var(--black);}
+.lang-modal-body{padding:16px 20px;}
+.lm-section{margin-bottom:18px;}
+.lm-section:last-child{margin-bottom:0;}
+.lm-label{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--s4);margin-bottom:8px;}
+.lm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.lm-option{padding:9px 12px;border:1.5px solid var(--s2);border-radius:var(--r-sm);cursor:pointer;transition:all 0.12s;background:var(--white);}
+.lm-option:hover{border-color:var(--accent-border);background:var(--accent-soft);}
+.lm-option.selected{border-color:var(--accent);background:var(--accent-soft);}
+.lm-option-name{font-size:12px;font-weight:600;color:var(--black);}
+.lm-option-sub{font-size:10px;color:var(--s5);margin-top:1px;}
+.lm-apply-btn{width:100%;background:var(--accent);color:white;border:none;border-radius:var(--r-pill);padding:10px;font-family:var(--fi);font-size:13px;font-weight:600;cursor:pointer;margin-top:16px;transition:background 0.12s;}
+.lm-apply-btn:hover{background:var(--accent-mid);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1 — LOGIN
+═══════════════════════════════════════════ -->
+<div id="screen-login" class="active">
+  <div class="auth-wrapper">
+    <div class="auth-left">
+      <div class="left-logo">
+        <div class="logo-mark"><img src="moneyhub_logo.png" alt="MoneyHub logo"></div>
+        <span class="logo-name">MoneyHub</span>
+      </div>
+      <div class="left-headline">
+        <h2>Your creative finances, finally under control</h2>
+        <p>Track income, manage expenses, and grow your creator business with clarity.</p>
+        <ul class="feature-list">
+          <li><span class="feature-check"><svg viewBox="0 0 12 12" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Real-time revenue & payout tracking</li>
+          <li><span class="feature-check"><svg viewBox="0 0 12 12" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Multi-platform income consolidation</li>
+          <li><span class="feature-check"><svg viewBox="0 0 12 12" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Tax-ready expense categorisation</li>
+          <li><span class="feature-check"><svg viewBox="0 0 12 12" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Sponsor &amp; brand deal management</li>
+        </ul>
+      </div>
+      <div class="auth-left-footer">© 2026 MoneyHub. All rights reserved.</div>
+    </div>
+    <div class="auth-right">
+      <div class="right-logo">
+        <div class="right-logo-mark"><img src="moneyhub_logo.png" alt="MoneyHub logo"></div>
+        <span class="right-logo-name">MoneyHub</span>
+      </div>
+      <div class="tab-toggle">
+        <button class="tab-btn active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="tab-btn" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+      <!-- SIGN IN -->
+      <div class="lform-panel active" id="panel-signin">
+        <div class="form-header"><h1>Welcome back</h1><p>Sign in to your MoneyHub account</p></div>
+        <div class="lfield-group">
+          <div class="lfield"><label>Email address</label><input id="signin-email" type="email" placeholder="you@example.com"></div>
+          <div class="lfield"><label>Password</label>
+            <div class="input-wrap"><input type="password" id="signin-pw" placeholder="8-15 chars, include 1 special" minlength="8" maxlength="15"><button class="eye-btn" onclick="togglePwd('signin-pw')" type="button"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+          </div>
+        </div>
+        <div class="extras-row"><label class="checkbox-wrap"><input type="checkbox" checked><span>Remember me</span></label><button class="link-btn" type="button">Forgot password?</button></div>
+        <button class="cta-btn" onclick="signInAuth()">Sign In</button>
+        <p class="terms-note">Don't have an account? <button class="link-btn" onclick="switchAuthTab('signup')">Create one free</button></p>
+      </div>
+      <!-- SIGN UP -->
+      <div class="lform-panel" id="panel-signup">
+        <div class="form-header"><h1>Create your account</h1><p>Start your 14-day free trial — no credit card required</p></div>
+        <div class="lfield-group">
+          <div class="lfield-row"><div class="lfield"><label>First name</label><input id="signup-first" type="text" placeholder="Alex"></div><div class="lfield"><label>Last name</label><input id="signup-last" type="text" placeholder="Morgan"></div></div>
+          <div class="lfield"><label>Email address</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
+          <div class="lfield"><label>Password</label>
+            <div class="input-wrap"><input type="password" id="signup-pw" placeholder="8-15 chars, include 1 special" minlength="8" maxlength="15" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="togglePwd('signup-pw')" type="button"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+            <div class="strength-bar"><div class="strength-seg" id="seg1"></div><div class="strength-seg" id="seg2"></div><div class="strength-seg" id="seg3"></div><div class="strength-seg" id="seg4"></div></div>
+            <div class="strength-label" id="strength-label"></div>
+          </div>
+        </div>
+        <button class="cta-btn" onclick="signUpAuth()">Create Free Account</button>
+        <p class="terms-note">By creating an account you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br>Already have an account? <button class="link-btn" onclick="switchAuthTab('signin')">Sign in</button></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2 — ONBOARDING
+═══════════════════════════════════════════ -->
+<div id="screen-onboarding">
+  <div class="ob-left">
+    <div class="ob-logo"><div class="ob-logo-mark"><img src="moneyhub_logo.png" alt="MoneyHub logo"></div><span class="ob-logo-name">MoneyHub</span></div>
+    <div class="ob-headline"><h1>Your finances,<br><em>finally</em> clear.</h1><p>Set up your profile once. We'll configure smart tracking and insights around how you create.</p></div>
+    <div class="ob-steps">
+      <div class="ob-step active" id="obs-0"><div class="ob-dot">1</div><div><div class="ob-step-label">Creator type</div><div class="ob-step-desc">How you make content</div></div></div>
+      <div class="ob-step" id="obs-1"><div class="ob-dot">2</div><div><div class="ob-step-label">Income platforms</div><div class="ob-step-desc">Where money comes from</div></div></div>
+      <div class="ob-step" id="obs-2"><div class="ob-dot">3</div><div><div class="ob-step-label">Revenue goal</div><div class="ob-step-desc">What you're optimizing for</div></div></div>
+      <div class="ob-step" id="obs-3"><div class="ob-dot">4</div><div><div class="ob-step-label">Your name</div><div class="ob-step-desc">Personalize your dashboard</div></div></div>
+      <div class="ob-step" id="obs-4"><div class="ob-dot">5</div><div><div class="ob-step-label">Review & launch</div><div class="ob-step-desc">Confirm and go live</div></div></div>
+    </div>
+    <div class="ob-footer">Complete onboarding to unlock your dashboard.</div>
+  </div>
+  <div class="ob-right">
+    <div class="ob-form">
+      <div class="ob-progress"><div class="ob-progress-fill" id="ob-progress" style="width:20%"></div></div>
+
+      <!-- Step 0 -->
+      <div class="ob-panel active" id="ob-panel-0">
+        <div class="ob-eyebrow">Step 1 of 5</div>
+        <div class="ob-title">What kind of creator are you?</div>
+        <div class="ob-sub">We'll tailor your financial categories and tax buckets to match your workflow.</div>
+        <div class="ob-creator-grid">
+          <div class="ob-creator-card" data-val="YouTuber" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">🎬</span><div class="ob-cc-name">YouTuber</div><div class="ob-cc-desc">Long-form video, shorts & vlogs</div></div>
+          <div class="ob-creator-card" data-val="Twitch Streamer" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">🎮</span><div class="ob-cc-name">Twitch Streamer</div><div class="ob-cc-desc">Live gaming, just chatting & IRL</div></div>
+          <div class="ob-creator-card" data-val="Influencer" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">✨</span><div class="ob-cc-name">Influencer</div><div class="ob-cc-desc">Instagram, TikTok & brand deals</div></div>
+          <div class="ob-creator-card" data-val="Podcaster" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">🎙️</span><div class="ob-cc-name">Podcaster</div><div class="ob-cc-desc">Audio, video podcasts & subs</div></div>
+          <div class="ob-creator-card" data-val="UGC Creator" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">📱</span><div class="ob-cc-name">UGC Creator</div><div class="ob-cc-desc">User-generated content for brands — no audience required</div></div>
+          <div class="ob-creator-card" data-val="Other Creator" onclick="obSelectType(this)"><div class="ob-cc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-cc-emoji">🧩</span><div class="ob-cc-name">Other</div><div class="ob-cc-desc">A different creator workflow</div></div>
+        </div>
+        <div class="ob-btn-row"><button class="ob-btn-primary" id="ob-next-0" onclick="obGoTo(1)" disabled>Continue →</button></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="ob-panel" id="ob-panel-1">
+        <div class="ob-eyebrow">Step 2 of 5</div>
+        <div class="ob-title">Where does your income come from?</div>
+        <div class="ob-sub">Select all that apply. We'll set up smart tracking for each platform.</div>
+        <div class="ob-platform-grid">
+          <div class="ob-platform-pill" data-val="YouTube" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#e52d27;"></div><span class="ob-pp-label">YouTube</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="TikTok" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#0f0f0f;"></div><span class="ob-pp-label">TikTok</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Twitch" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#6441a5;"></div><span class="ob-pp-label">Twitch</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Patreon" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#e87c2b;"></div><span class="ob-pp-label">Patreon</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Sponsorship" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#1d4ed8;"></div><span class="ob-pp-label">Brand Deals</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Affiliate" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#15803d;"></div><span class="ob-pp-label">Affiliate</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Merch" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#f59e0b;"></div><span class="ob-pp-label">Merch</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+          <div class="ob-platform-pill" data-val="Other" onclick="obTogglePlatform(this)"><div class="ob-pp-dot" style="background:#6b7280;"></div><span class="ob-pp-label">Other</span><div class="ob-pp-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+        </div>
+        <div class="ob-hint">Select at least one platform to continue.</div>
+        <div class="ob-btn-row"><button class="ob-btn-ghost" onclick="obGoTo(0)">← Back</button><button class="ob-btn-primary" id="ob-next-1" onclick="obGoTo(2)" disabled>Continue →</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="ob-panel" id="ob-panel-2">
+        <div class="ob-eyebrow">Step 3 of 5</div>
+        <div class="ob-title">What's your main financial goal?</div>
+        <div class="ob-sub">This helps us surface the most relevant insights for where you are right now.</div>
+        <div class="ob-goal-list">
+          <div class="ob-goal-item" onclick="obSelectGoal(this)" data-val="Track all income & expenses"><div class="ob-goal-radio"></div><div><div class="ob-goal-name">Track all income & expenses</div><div class="ob-goal-desc">Get a clear picture of cash flow across all platforms</div></div></div>
+          <div class="ob-goal-item" onclick="obSelectGoal(this)" data-val="Maximize tax deductions"><div class="ob-goal-radio"></div><div><div class="ob-goal-name">Maximize tax deductions</div><div class="ob-goal-desc">Auto-tag business expenses and generate tax-ready reports</div></div><div class="ob-goal-badge">Most popular</div></div>
+          <div class="ob-goal-item" onclick="obSelectGoal(this)" data-val="Grow to full-time income"><div class="ob-goal-radio"></div><div><div class="ob-goal-name">Grow to full-time income</div><div class="ob-goal-desc">Track progress toward your monthly revenue target</div></div></div>
+          <div class="ob-goal-item" onclick="obSelectGoal(this)" data-val="Diversify revenue streams"><div class="ob-goal-radio"></div><div><div class="ob-goal-name">Diversify revenue streams</div><div class="ob-goal-desc">Balance income across platforms to reduce risk</div></div></div>
+        </div>
+        <div class="ob-btn-row"><button class="ob-btn-ghost" onclick="obGoTo(1)">← Back</button><button class="ob-btn-primary" id="ob-next-2" onclick="obGoTo(3)" disabled>Continue →</button></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="ob-panel" id="ob-panel-3">
+        <div class="ob-eyebrow">Step 4 of 5</div>
+        <div class="ob-title">One last thing — what's your name?</div>
+        <div class="ob-sub">We'll use this to personalize your dashboard and reports.</div>
+        <div class="ob-field-group"><div class="ob-field-label">Display name</div><input class="ob-field-inp" id="ob-name" type="text" placeholder="e.g. Alex, CreatorAlex…" oninput="obCheckName()"></div>
+        <div class="ob-field-group"><div class="ob-field-label">Channel / Brand name <span style="color:var(--s3);font-weight:400;">(optional)</span></div><input class="ob-field-inp" id="ob-brand" type="text" placeholder="e.g. AlexCreates"></div>
+        <div class="ob-btn-row" style="margin-top:20px;"><button class="ob-btn-ghost" onclick="obGoTo(2)">← Back</button><button class="ob-btn-primary" id="ob-next-3" onclick="obGoTo(4)" disabled>Review profile →</button></div>
+      </div>
+
+      <!-- Step 4: Review -->
+      <div class="ob-panel" id="ob-panel-4">
+        <div class="ob-eyebrow">Step 5 of 5</div>
+        <div class="ob-title">Looks great, <span id="ob-review-name">creator</span>.</div>
+        <div class="ob-sub">Review your profile. You can always update these in Settings.</div>
+        <div class="ob-review-block">
+          <div class="ob-review-section"><div class="ob-review-row"><span class="ob-review-key">Creator type</span><span class="ob-review-val" id="ob-rv-type">—</span></div></div>
+          <div class="ob-review-section"><div class="ob-review-row"><span class="ob-review-key">Income platforms</span><span class="ob-review-val" id="ob-rv-count">—</span></div><div class="ob-review-chips" id="ob-rv-chips"></div></div>
+          <div class="ob-review-section"><div class="ob-review-row"><span class="ob-review-key">Primary goal</span><span class="ob-review-val" id="ob-rv-goal" style="max-width:260px;text-align:right;">—</span></div></div>
+          <div class="ob-review-section"><div class="ob-review-row"><span class="ob-review-key">Display name</span><span class="ob-review-val" id="ob-rv-name">—</span></div></div>
+        </div>
+        <div class="ob-btn-row"><button class="ob-btn-ghost" onclick="obGoTo(3)">← Edit</button><button class="ob-btn-primary" onclick="obLaunch()">Launch my dashboard →</button></div>
+      </div>
+
+      <!-- Step 5: Success -->
+      <div class="ob-panel" id="ob-panel-5">
+        <div class="ob-success">
+          <div class="ob-success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="ob-success-title">You're all set,<br><em id="ob-success-name">creator</em>.</div>
+          <div class="ob-success-sub">Your MoneyHub dashboard is configured and ready. Income tracking, tax categories, and AI insights are all set up for your profile.</div>
+          <div class="ob-profile-pill"><div class="ob-profile-avatar" id="ob-success-avatar">CL</div><div><div class="ob-profile-name" id="ob-success-full-name">Creator</div><div class="ob-profile-type" id="ob-success-type-line">YouTuber · 3 platforms</div></div></div>
+          <button class="ob-btn-full" onclick="enterDashboard()">Go to dashboard <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3 — APP
+═══════════════════════════════════════════ -->
+<div id="screen-app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark"><img src="moneyhub_logo.png" alt="MoneyHub logo"></div>
+      <span class="sb-logo-name">MoneyHub</span>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <div class="nav-item active" data-page="dashboard"><svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+      <div class="sb-section">Transactions</div>
+      <div class="nav-item" data-page="income"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 5 5 12"/></svg>Income</div>
+      <div class="nav-item" data-page="expenses"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 12 12 19 19 12"/></svg>Expenses</div>
+      <div class="nav-item" data-page="transactions"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>All transactions<span class="nav-badge" id="tx-count">6</span></div>
+      <div class="sb-section">Reports</div>
+      <div class="nav-item" data-page="analytics"><svg viewBox="0 0 24 24" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</div>
+      <div class="nav-item" data-page="pnl"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Content P&amp;L</div>
+      <div class="nav-item" data-page="health"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Health Score</div>
+      <div class="nav-item" data-page="market"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M3 7h18l-2 13H5L3 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>Market plans</div>
+      <div class="nav-item" data-page="feedback"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Feedback &amp; support</div>
+    </nav>
+    <div class="sb-footer">
+      <div class="theme-toggle"><span>Theme</span><button class="theme-switch" id="theme-switch" onclick="toggleTheme()" type="button" aria-label="Toggle dark mode"></button></div>
+      <div class="trial-block"><div class="trial-row"><span class="trial-label" id="sb-trial-label">Free trial</span><span class="trial-days">30 days free</span></div><div class="trial-track"><div class="trial-fill" style="width:0%;"></div></div></div>
+      <div class="lang-row" onclick="openLangModal()"><span>Language / Currency</span><b id="sb-lang-display">EN · $</b></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+      <div class="topbar">
+        <div class="tb-left"><div class="tb-title-main">MoneyHub Dashboard</div><div class="tb-sub-main" id="dash-sub">Your financial command center</div></div>
+        <div class="tb-right"><button class="btn-secondary" id="export-btn">Export CSV</button><button class="btn-primary" onclick="openModal()">New transaction</button><div class="avatar" id="app-avatar">AX</div></div>
+      </div>
+      <div class="sub-tabs" id="dashboard-tabs">
+        <div class="stab active" data-scope="monthly" onclick="setDashboardScope('monthly', this)">Monthly</div>
+        <div class="stab" data-scope="annual" onclick="setDashboardScope('annual', this)">Annual</div>
+        <div class="stab active" data-range="this" onclick="setDashboardRange('this', this)">This month</div>
+        <div class="stab" data-range="last" onclick="setDashboardRange('last', this)">Last month</div>
+      </div>
+      <div class="content">
+        <div class="metrics">
+          <div class="mc"><div class="mc-label" id="d-label-income">Monthly income</div><div class="mc-val" id="d-income">—</div><div class="mc-sub up" id="d-income-ch">—</div></div>
+          <div class="mc"><div class="mc-label" id="d-label-expense">Monthly expenses</div><div class="mc-val" id="d-expenses">—</div><div class="mc-sub gray" id="d-exp-ch">—</div></div>
+          <div class="mc dark"><div class="mc-label" id="d-label-profit">Monthly net</div><div class="mc-val" id="d-profit">—</div><div class="mc-sub nu" id="d-margin">—</div></div>
+        </div>
+        <div class="insight" id="goal-insight" style="margin-top:-4px;"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span id="goal-insight-text">Set your revenue goal in onboarding to tailor guidance.</span></div>
+        <div class="forecast">
+          <div class="fc-icon"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="fc-body"><div class="fc-title" id="forecast-title">April income forecast</div><div class="fc-desc" id="forecast-desc">Based on your last 3 months, April is estimated between $5,200 – $6,400. Affiliate is your lowest-performing channel this month.</div></div>
+          <div class="fc-amount" id="forecast-amt">~$5,800</div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Financial Health Score</div>
+              <span class="card-link" onclick="showPage('health')">Full report →</span>
+            </div>
+            <div class="card-body" id="dash-health-widget"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Income vs expenses</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;align-items:center;">
+              <div class="donut-wrap"><div style="position:relative;width:160px;height:160px;"><canvas id="splitDonut"></canvas><div class="donut-center"><div class="donut-center-val" id="donut-val">—</div><div class="donut-center-label">Total</div></div></div><div class="donut-legend" id="donut-legend"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="g31">
+          <div class="card">
+            <div class="trend-header"><div class="card-title">Monthly income trend</div><div class="mini-tabs"><div class="mini-tab active">6M</div><div class="mini-tab">1Y</div></div></div>
+            <div class="trend-stats">
+              <div class="ts-item"><div class="ts-label">This month</div><div class="ts-val" id="trend-this">—</div><div class="ts-change up">+12%</div></div>
+              <div class="ts-divider"></div>
+              <div class="ts-item"><div class="ts-label">Last month</div><div class="ts-val">$6,100</div><div class="ts-change up">+11%</div></div>
+              <div class="ts-divider"></div>
+              <div class="ts-item"><div class="ts-label">Forecast</div><div class="ts-val">$5,800</div><div class="ts-change dn">-5%</div></div>
+            </div>
+            <div class="card-body" style="padding-top:10px;"><div style="position:relative;height:130px;"><canvas id="trendChart"></canvas></div><div style="font-size:11px;color:var(--s4);margin-top:8px;">Apr* is a predicted estimate based on your income trend</div></div>
+          </div>
+          <div class="card"><div class="card-head"><div class="card-title">Recent expenses</div><span class="card-link" onclick="showPage('expenses')">View all</span></div><div class="card-body"><div class="exp-toggle-list" id="expense-toggle-list"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="page-transactions" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">All transactions</div><div class="tb-sub">March 2025</div></div><div class="tb-right"><button class="btn-primary" onclick="openModal()">New transaction</button><div class="avatar" id="app-avatar-2">AX</div></div></div>
+      <div class="content">
+        <div class="search-row">
+          <div class="search-wrap"><svg class="search-icon" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-inp" id="tx-search" type="text" placeholder="Search transactions…" oninput="renderTxTable()"></div>
+          <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" id="filter-income" onclick="setFilter('income')">Income</button>
+          <button class="filter-btn" id="filter-expense" onclick="setFilter('expense')">Expenses</button>
+          <button class="filter-btn" id="sort-btn" onclick="toggleSort()">Date: newest</button>
+        </div>
+        <div class="card"><div class="tx-head"><div class="tx-hc">Description</div><div class="tx-hc">Platform</div><div class="tx-hc">Date</div><div class="tx-hc">Amount</div><div class="tx-hc"></div></div><div id="tx-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="page-analytics" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">Analytics</div><div class="tb-sub">Financial patterns</div></div><div class="tb-right"><div class="avatar" id="app-avatar-3">AX</div></div></div>
+      <div class="content">
+        <div class="metrics" id="analytics-metrics">
+          <div class="mc"><div class="mc-label">6-month income</div><div class="mc-val" id="an-income">—</div><div class="mc-sub up" id="an-income-ch">—</div></div>
+          <div class="mc"><div class="mc-label">Avg monthly profit</div><div class="mc-val" id="an-profit">—</div><div class="mc-sub nu" id="an-margin">—</div></div>
+          <div class="mc dark"><div class="mc-label">Top platform</div><div class="mc-val" id="an-top-plat">—</div><div class="mc-sub nu" id="an-top-pct">—</div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-head"><div class="card-title">Income vs expenses</div></div><div class="card-body"><div style="position:relative;height:160px;"><canvas id="barChart"></canvas></div><div style="display:flex;gap:14px;margin-top:10px;"><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--s5);"><div style="width:10px;height:10px;background:#1a6b3c;border-radius:2px;"></div>Income</div><div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--s5);"><div style="width:10px;height:10px;background:#c0392b;border-radius:2px;"></div>Expenses</div></div></div></div>
+          <div class="card"><div class="card-head"><div class="card-title">Business vs personal</div></div><div class="card-body"><div class="prog"><div class="prog-row"><span class="prog-label">Business</span><span class="prog-value">$890 · 38%</span></div><div class="prog-track"><div class="prog-bar" style="width:38%;background:var(--blue);"></div></div></div><div class="prog"><div class="prog-row"><span class="prog-label">Personal</span><span class="prog-value">$1,420 · 62%</span></div><div class="prog-track"><div class="prog-bar" style="width:62%;background:var(--s3);"></div></div></div><div class="insight"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span>$890 in business expenses may be potentially deductible. Check local tax rules before filing.</span></div></div></div>
+        </div>
+        <div class="card"><div class="card-head"><div class="card-title">Platform performance — last 3 months</div></div><div class="card-body"><div style="position:relative;height:220px;"><canvas id="platformChart"></canvas></div></div></div>
+      </div>
+    </div>
+
+    <div id="page-market" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">Market plans</div><div class="tb-sub">Pick the right plan for your creator finance workflow</div></div><div class="tb-right"><div class="avatar" id="app-avatar-9">AX</div></div></div>
+      <div class="content">
+        <div class="card" style="margin-bottom:12px;background:linear-gradient(140deg,var(--accent-soft),var(--white));">
+          <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">30-day trial</div>
+              <div style="font-size:24px;font-weight:800;color:var(--black);letter-spacing:-.02em;">Start free. Upgrade only when ready.</div>
+              <div style="font-size:13px;color:var(--s5);margin-top:4px;">All plans include local data persistence, language/currency support, and clean analytics dashboards.</div>
+            </div>
+            <button class="btn-primary" style="padding:10px 18px;">Start 30-day free trial</button>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Starter</div><span class="card-link">Best for setup phase</span></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;"><span style="font-size:34px;font-weight:800;color:var(--black);">$0</span><span style="font-size:13px;color:var(--s5);">/month</span></div>
+              <div class="prog"><div class="prog-label">Dashboard with monthly and annual views</div></div>
+              <div class="prog"><div class="prog-label">Income vs expense donut and trend chart</div></div>
+              <div class="prog"><div class="prog-label">Transaction tracking with edit/search/sort</div></div>
+              <div class="prog"><div class="prog-label">CSV export</div></div>
+              <div class="prog"><div class="prog-label">Local feedback collection</div></div>
+              <button class="btn-secondary" style="margin-top:12px;width:100%;">Current plan</button>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:var(--accent-border);box-shadow:0 6px 20px rgba(26,107,60,0.12);">
+            <div class="card-head"><div class="card-title">Pro</div><span class="card-link" style="color:var(--accent);font-weight:700;">Most popular</span></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;"><span style="font-size:34px;font-weight:800;color:var(--accent);">$19</span><span style="font-size:13px;color:var(--s5);">/month</span></div>
+              <div class="prog"><div class="prog-label">Everything in Starter</div></div>
+              <div class="prog"><div class="prog-label">Advanced analytics insights and KPI benchmarking</div></div>
+              <div class="prog"><div class="prog-label">Priority support and faster report exports</div></div>
+              <div class="prog"><div class="prog-label">Cloud sync (when backend is enabled)</div></div>
+              <div class="prog"><div class="prog-label">Team/accountant sharing (future-ready)</div></div>
+              <button class="btn-primary" style="margin-top:12px;width:100%;">Start Pro trial</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-feedback" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">Feedback &amp; support</div><div class="tb-sub">Your notes are saved locally for this prototype</div></div><div class="tb-right"><div class="avatar" id="app-avatar-10">AX</div></div></div>
+      <div class="content">
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-head"><div class="card-title">Send feedback</div></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div><div class="field-label">Name</div><input id="fb-name" class="field-inp" type="text" placeholder="Your name"></div>
+              <div><div class="field-label">Email</div><input id="fb-email" class="field-inp" type="email" placeholder="you@example.com"></div>
+              <div class="form-full"><div class="field-label">Message</div><textarea id="fb-message" class="field-inp" rows="4" placeholder="Tell us what is working and what should improve"></textarea></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;"><button class="btn-primary" onclick="saveFeedback()">Submit feedback</button></div>
+          </div>
+        </div>
+        <div class="card"><div class="card-head"><div class="card-title">Recent submissions</div></div><div class="card-body" id="feedback-list"></div></div>
+      </div>
+    </div>
+
+    <!-- TAX -->
+    <div id="page-tax" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">Tax report</div><div class="tb-sub">2025 fiscal year · Auto-generated</div></div><div class="tb-right"><div class="avatar" id="app-avatar-4">AX</div></div></div>
+      <div class="content">
+        <div class="metrics">
+          <div class="mc"><div class="mc-label">Total income (YTD)</div><div class="mc-val" id="tax-income">—</div><div class="mc-sub up">Across 4 platforms</div></div>
+          <div class="mc"><div class="mc-label">Potential deductible expenses</div><div class="mc-val">$890</div><div class="mc-sub nu">Estimate only</div></div>
+          <div class="mc dark"><div class="mc-label">Net taxable income</div><div class="mc-val">$5,950</div><div class="mc-sub dn">Estimated after deductions</div></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-head"><div class="card-title">Potential deductible expenses</div><span class="card-link">Auto-tagged estimate</span></div>
+          <div class="card-body">
+            <div class="et-row"><div class="et-logo"><svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div class="et-info"><div class="et-name">Gear &amp; equipment</div><div class="et-meta">Sony lens, mic stand</div></div><div class="et-right"><span class="tag tag-biz">Deductible</span><div style="font-size:13px;font-weight:600;color:var(--blue);">$480</div></div></div>
+            <div class="et-row"><div class="et-logo"><svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/></svg></div><div class="et-info"><div class="et-name">Software &amp; tools</div><div class="et-meta">Adobe CC, Figma</div></div><div class="et-right"><span class="tag tag-biz">Deductible</span><div style="font-size:13px;font-weight:600;color:var(--blue);">$210</div></div></div>
+            <div class="et-row"><div class="et-logo"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg></div><div class="et-info"><div class="et-name">Business travel</div><div class="et-meta">Creator conference, Mar 8</div></div><div class="et-right"><span class="tag tag-biz">Deductible</span><div style="font-size:13px;font-weight:600;color:var(--blue);">$200</div></div></div>
+          </div>
+        </div>
+        <div class="insight"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span>This prototype keeps tax reporting in-app. Export actions can be connected once backend/report generation is added.</span></div>
+      </div>
+    </div>
+
+    <!-- INCOME PAGE -->
+    <div id="page-income" class="page" style="display:none;">
+      <div class="topbar">
+        <div class="tb-left"><div class="tb-title">Income</div><div class="tb-sub" id="income-sub">All platforms</div></div>
+        <div class="tb-right"><button class="btn-primary" onclick="openModal('income')">+ Add income</button><div class="avatar" id="app-avatar-5">AX</div></div>
+      </div>
+      <div class="content">
+        <!-- Sub-tabs -->
+        <div class="income-tabs-bar">
+          <div class="income-tab active" data-tab="overview">Overview</div>
+          <div class="income-tab" data-tab="log">Income log</div>
+          <div class="income-tab" data-tab="byplatform">By platform</div>
+          <div class="income-tab" data-tab="expenses">Expenses</div>
+        </div>
+        <!-- KPI strip -->
+        <div class="income-kpi-strip" id="income-kpi-strip"></div>
+        <!-- Tab content area -->
+        <div id="income-tab-content"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT P&L PAGE -->
+    <div id="page-pnl" class="page" style="display:none;">
+      <div class="topbar">
+        <div class="tb-left"><div class="tb-title">Content P&L</div><div class="tb-sub">Profit & loss per piece of content</div></div>
+        <div class="tb-right"><button class="btn-primary" onclick="openPLForm()">+ Add content</button><div class="avatar" id="app-avatar-7">AX</div></div>
+      </div>
+      <div class="content">
+        <!-- Add form -->
+        <div class="pl-add-form" id="pl-form" style="display:none;">
+          <div style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:12px;">New content entry</div>
+          <div class="pl-form-grid">
+            <div><div class="field-label">Content title</div><input id="pl-title" class="field-inp" type="text" placeholder="e.g. Morning Routine Reel"></div>
+            <div><div class="field-label">Platform</div>
+              <select id="pl-platform" class="field-inp"><option value="YouTube">YouTube</option><option value="TikTok">TikTok</option><option value="Instagram">Instagram</option><option value="Twitch">Twitch</option><option value="Podcast">Podcast</option><option value="Other">Other</option></select>
+            </div>
+            <div><div class="field-label">Content type</div>
+              <select id="pl-type" class="field-inp"><option value="Video">Video</option><option value="Short">Short / Reel</option><option value="Post">Post</option><option value="Stream">Live stream</option><option value="Podcast">Podcast ep.</option></select>
+            </div>
+            <div><div class="field-label">Money spent ($)</div><input id="pl-spent" class="field-inp" type="number" placeholder="0.00" min="0" step="0.01"></div>
+            <div><div class="field-label">Money earned ($)</div><input id="pl-earned" class="field-inp" type="number" placeholder="0.00" min="0" step="0.01"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary" onclick="savePLEntry()">Save entry</button>
+            <button class="btn-secondary" onclick="closePLForm()">Cancel</button>
+          </div>
+        </div>
+        <!-- Summary metrics -->
+        <div class="metrics" id="pl-metrics"></div>
+        <!-- P&L table -->
+        <div class="card">
+          <div class="pl-table-head">
+            <div class="tx-hc">Content</div>
+            <div class="tx-hc">Platform</div>
+            <div class="tx-hc">Type</div>
+            <div class="tx-hc">Spent</div>
+            <div class="tx-hc">Earned</div>
+            <div class="tx-hc">Net result</div>
+            <div class="tx-hc"></div>
+          </div>
+          <div id="pl-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEALTH SCORE PAGE -->
+    <div id="page-health" class="page" style="display:none;">
+      <div class="topbar">
+        <div class="tb-left"><div class="tb-title">Financial Health Score</div><div class="tb-sub">Your creator financial stability</div></div>
+        <div class="tb-right"><button class="btn-secondary" onclick="renderHealthPage()">Recalculate</button><div class="avatar" id="app-avatar-8">AX</div></div>
+      </div>
+      <div class="content">
+        <!-- Budget inputs -->
+        <div class="fhs-settings">
+          <div style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:12px;">📊 Set your budget targets <span style="font-size:11px;font-weight:400;color:var(--s4);">— used to calculate your score</span></div>
+          <div class="fhs-settings-grid">
+            <div><div class="field-label">Monthly budget ($)</div><input id="fhs-budget" class="field-inp" type="number" placeholder="5000" value="5000"></div>
+            <div><div class="field-label">Savings target (%)</div><input id="fhs-savings-target" class="field-inp" type="number" placeholder="20" value="20" min="0" max="100"></div>
+            <div><div class="field-label">Tool subscriptions ($)</div><input id="fhs-subs-cost" class="field-inp" type="number" placeholder="150" value="150"></div>
+            <div><div class="field-label">Impulse spend limit ($)</div><input id="fhs-impulse-limit" class="field-inp" type="number" placeholder="200" value="200"></div>
+          </div>
+          <button class="btn-primary" onclick="renderHealthPage()">Update score</button>
+        </div>
+        <!-- Score + factors -->
+        <div class="fhs-wrap" id="fhs-wrap"></div>
+        <!-- Factor breakdown cards -->
+        <div class="g2" id="fhs-detail"></div>
+      </div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div id="page-expenses" class="page" style="display:none;">
+      <div class="topbar"><div class="tb-left"><div class="tb-title">Expenses</div><div class="tb-sub">March 2025</div></div><div class="tb-right"><button class="btn-primary" onclick="openModal('expense')">Add expense</button><div class="avatar" id="app-avatar-6">AX</div></div></div>
+      <div class="content">
+        <div class="metrics" id="expense-metrics"></div>
+        <div class="card"><div class="tx-head"><div class="tx-hc">Description</div><div class="tx-hc">Category</div><div class="tx-hc">Date</div><div class="tx-hc">Amount</div><div class="tx-hc"></div></div><div id="expense-body"></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TRANSACTION MODAL -->
+<div id="modal-bg">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">New transaction</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="type-toggle"><button id="btn-income" class="type-btn t-inc" onclick="setModalType('income')">Income</button><button id="btn-expense" class="type-btn t-off" onclick="setModalType('expense')">Expense</button></div>
+    <div class="form-grid">
+      <div><div class="field-label">Amount</div><input id="f-amount" class="field-inp" type="number" placeholder="0.00" min="0" step="0.01"></div>
+      <div><div class="field-label">Date</div><input id="f-date" class="field-inp" type="date"></div>
+      <div><div class="field-label">Platform</div><select id="f-platform" class="field-inp"><option value="YouTube">YouTube</option><option value="Twitch">Twitch</option><option value="TikTok">TikTok</option><option value="Sponsorship">Sponsorship</option><option value="Affiliate">Affiliate</option><option value="Patreon">Patreon</option><option value="Merch">Merch</option><option value="—">—</option></select></div>
+      <div><div class="field-label">Category</div><select id="f-category" class="field-inp"><option value="Ad revenue">Ad revenue</option><option value="Brand deal">Brand deal</option><option value="Subscriptions">Subscriptions</option><option value="Gear">Gear &amp; equipment</option><option value="Software">Software &amp; tools</option><option value="Travel">Business travel</option><option value="Housing">Housing</option><option value="Food">Food</option><option value="Personal">Personal</option></select></div>
+      <div class="form-full"><div class="field-label">Description</div><input id="f-desc" class="field-inp" type="text" placeholder="e.g. Nike sponsorship — March campaign"></div>
+      <div class="form-full"><div class="field-label">Type</div><select id="f-bizper" class="field-inp"><option value="Business">Business (potentially deductible)</option><option value="Personal">Personal</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button><button class="btn-primary" style="flex:2;" id="modal-save-btn" onclick="saveTransaction()">Save transaction</button></div>
+  </div>
+</div>
+
+<!-- LANGUAGE / CURRENCY MODAL -->
+<div id="lang-modal-bg">
+  <div class="lang-modal">
+    <div class="lang-modal-head"><span class="lang-modal-title">Language & Currency</span><button class="modal-close" onclick="closeLangModal()">✕</button></div>
+    <div class="lang-modal-body">
+      <div class="lm-section">
+        <div class="lm-label">Language</div>
+        <div class="lm-grid" id="lm-lang-grid">
+          <div class="lm-option selected" data-lang="en" onclick="selectLang(this)"><div class="lm-option-name">🇺🇸 English</div><div class="lm-option-sub">English (US)</div></div>
+          <div class="lm-option" data-lang="fr" onclick="selectLang(this)"><div class="lm-option-name">🇫🇷 Français</div><div class="lm-option-sub">French</div></div>
+          <div class="lm-option" data-lang="es" onclick="selectLang(this)"><div class="lm-option-name">🇪🇸 Español</div><div class="lm-option-sub">Spanish</div></div>
+          <div class="lm-option" data-lang="de" onclick="selectLang(this)"><div class="lm-option-name">🇩🇪 Deutsch</div><div class="lm-option-sub">German</div></div>
+          <div class="lm-option" data-lang="ja" onclick="selectLang(this)"><div class="lm-option-name">🇯🇵 日本語</div><div class="lm-option-sub">Japanese</div></div>
+          <div class="lm-option" data-lang="ar" onclick="selectLang(this)"><div class="lm-option-name">🇦🇪 العربية</div><div class="lm-option-sub">Arabic</div></div>
+        </div>
+      </div>
+      <div class="lm-section">
+        <div class="lm-label">Currency</div>
+        <div class="lm-grid" id="lm-curr-grid">
+          <div class="lm-option selected" data-curr="USD" onclick="selectCurr(this)"><div class="lm-option-name">$ USD</div><div class="lm-option-sub">US Dollar</div></div>
+          <div class="lm-option" data-curr="EUR" onclick="selectCurr(this)"><div class="lm-option-name">€ EUR</div><div class="lm-option-sub">Euro</div></div>
+          <div class="lm-option" data-curr="GBP" onclick="selectCurr(this)"><div class="lm-option-name">£ GBP</div><div class="lm-option-sub">British Pound</div></div>
+          <div class="lm-option" data-curr="CAD" onclick="selectCurr(this)"><div class="lm-option-name">C$ CAD</div><div class="lm-option-sub">Canadian Dollar</div></div>
+          <div class="lm-option" data-curr="JPY" onclick="selectCurr(this)"><div class="lm-option-name">¥ JPY</div><div class="lm-option-sub">Japanese Yen</div></div>
+          <div class="lm-option" data-curr="AED" onclick="selectCurr(this)"><div class="lm-option-name">د.إ AED</div><div class="lm-option-sub">UAE Dirham</div></div>
+        </div>
+      </div>
+      <button class="lm-apply-btn" onclick="applyLangCurr()">Apply changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="toast-dot" id="toast-dot"></div><span id="toast-msg">Transaction saved</span></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   GLOBAL PROFILE STATE
+═══════════════════════════════════════════ */
+const profile = { type:'', platforms:[], goal:'', name:'', brand:'', lang:'en', curr:'USD' };
+const authState = { isAuthenticated:false, userEmail:'' };
+
+function resetProfileForUser(displayName){
+  profile.type='';
+  profile.platforms=[];
+  profile.goal='';
+  profile.name=displayName||'';
+  profile.brand='';
+  profile.lang='en';
+  profile.curr='USD';
+}
+
+/* ═══════════════════════════════════════════
+   I18N & CURRENCY
+═══════════════════════════════════════════ */
+const LANG_LOCALE = {en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',ja:'ja-JP',ar:'ar-AE'};
+const CURR_RATES  = {USD:1,EUR:0.92,GBP:0.79,CAD:1.36,JPY:149.5,AED:3.67};
+const CURR_SYMBOL = {USD:'$',EUR:'€',GBP:'£',CAD:'C$',JPY:'¥',AED:'د.إ'};
+const LANG_LABELS  = {en:'EN',fr:'FR',es:'ES',de:'DE',ja:'JA',ar:'AR'};
+const I18N = {
+  en:{dashboard:'Dashboard',income:'Income',expenses:'Expenses',transactions:'All transactions',analytics:'Analytics',tax:'Tax report',newTx:'New transaction',addIncome:'Add income',addExpense:'Add expense',totalIncome:'Total income',totalExpenses:'Total expenses',netProfit:'Net profit'},
+  fr:{dashboard:'Tableau de bord',income:'Revenus',expenses:'Dépenses',transactions:'Toutes les transactions',analytics:'Analytique',tax:'Rapport fiscal',newTx:'Nouvelle transaction',addIncome:'Ajouter un revenu',addExpense:'Ajouter une dépense',totalIncome:'Revenu total',totalExpenses:'Dépenses totales',netProfit:'Bénéfice net'},
+  es:{dashboard:'Panel',income:'Ingresos',expenses:'Gastos',transactions:'Todas las transacciones',analytics:'Analítica',tax:'Informe fiscal',newTx:'Nueva transacción',addIncome:'Añadir ingreso',addExpense:'Añadir gasto',totalIncome:'Ingresos totales',totalExpenses:'Gastos totales',netProfit:'Beneficio neto'},
+  de:{dashboard:'Dashboard',income:'Einnahmen',expenses:'Ausgaben',transactions:'Alle Transaktionen',analytics:'Analytik',tax:'Steuerbericht',newTx:'Neue Transaktion',addIncome:'Einnahme hinzufügen',addExpense:'Ausgabe hinzufügen',totalIncome:'Gesamteinnahmen',totalExpenses:'Gesamtausgaben',netProfit:'Nettogewinn'},
+  ja:{dashboard:'ダッシュボード',income:'収入',expenses:'支出',transactions:'すべての取引',analytics:'分析',tax:'税務報告',newTx:'新しい取引',addIncome:'収入を追加',addExpense:'支出を追加',totalIncome:'総収入',totalExpenses:'総支出',netProfit:'純利益'},
+  ar:{dashboard:'لوحة القيادة',income:'الدخل',expenses:'المصروفات',transactions:'كل المعاملات',analytics:'التحليلات',tax:'تقرير ضريبي',newTx:'معاملة جديدة',addIncome:'إضافة دخل',addExpense:'إضافة مصروف',totalIncome:'إجمالي الدخل',totalExpenses:'إجمالي المصروفات',netProfit:'صافي الربح'}
+};
+
+function t(key){ return (I18N[profile.lang]||I18N.en)[key]||key; }
+
+function fmt(n){
+  const rate = CURR_RATES[profile.curr]||1;
+  const locale = LANG_LOCALE[profile.lang]||'en-US';
+  const curr = profile.curr||'USD';
+  return new Intl.NumberFormat(locale,{style:'currency',currency:curr,maximumFractionDigits:curr==='JPY'?0:0}).format(n*rate);
+}
+
+const fmtDate=d=>{const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString(LANG_LOCALE[profile.lang]||'en-US',{month:'short',day:'numeric'});};
+
+/* ═══════════════════════════════════════════
+   SCREEN TRANSITIONS
+═══════════════════════════════════════════ */
+function showScreen(id){
+  if(id==='screen-app' && !authState.isAuthenticated){
+    showToast('Please sign in first', true);
+    id='screen-login';
+  }
+  ['screen-login','screen-onboarding','screen-app'].forEach(s=>document.getElementById(s).classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════ */
+function switchAuthTab(tab){
+  ['signin','signup'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active',t===tab);
+  });
+}
+function togglePwd(id){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+}
+function checkStrength(val){
+  let score=0;
+  if(val.length>=8)score++;if(/[A-Z]/.test(val))score++;if(/[0-9]/.test(val))score++;if(/[^A-Za-z0-9]/.test(val))score++;
+  const colors=['#c0392b','#e67e22','#f1c40f','#1a6b3c'];
+  const labels=['Weak','Fair','Good','Strong'];
+  ['seg1','seg2','seg3','seg4'].forEach((id,i)=>{document.getElementById(id).style.background=i<score?colors[score-1]:'var(--s2)';});
+  const lbl=document.getElementById('strength-label');
+  lbl.textContent=val.length?(labels[score-1]||''):'';
+  lbl.style.color=score>0?colors[score-1]:'var(--s4)';
+}
+
+function isValidPassword(pw){
+  return /^(?=.*[^A-Za-z0-9]).{8,15}$/.test(pw);
+}
+
+function isValidEmail(email){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+function getUsers(){
+  return JSON.parse(localStorage.getItem(LS_KEYS.users)||'[]');
+}
+
+function saveUsers(users){
+  localStorage.setItem(LS_KEYS.users, JSON.stringify(users));
+}
+
+function ensureDemoAlice(){
+  const demoEmail='alice@moneyhub.test';
+  const users=getUsers();
+  const hasAlice=users.some(u=>u.email===demoEmail);
+  if(!hasAlice){
+    users.push({
+      first:'Alice',
+      last:'Creator',
+      email:demoEmail,
+      password:'Alice@123',
+      createdAt:new Date().toISOString(),
+      isDemo:true
+    });
+    saveUsers(users);
+  }
+
+  const store=getUserDataStore();
+  if(!store[demoEmail]){
+    store[demoEmail]={
+      transactions:[
+        {id:1,type:'income',desc:'YouTube ad revenue',platform:'YouTube',category:'Ad revenue',bizper:'Business',amount:3200,date:'2026-03-05'},
+        {id:2,type:'income',desc:'Brand sponsorship',platform:'Sponsorship',category:'Brand deal',bizper:'Business',amount:1800,date:'2026-03-09'},
+        {id:3,type:'expense',desc:'Video editor subscription',platform:'—',category:'Software',bizper:'Business',amount:85,date:'2026-03-02'},
+        {id:4,type:'expense',desc:'Camera accessories',platform:'—',category:'Gear',bizper:'Business',amount:240,date:'2026-03-11'}
+      ],
+      nextId:5,
+      profile:{
+        type:'Influencer',
+        platforms:['YouTube','Sponsorship','Other'],
+        goal:'Grow to full-time income',
+        name:'Alice Creator',
+        brand:'Alice Studio',
+        lang:'en',
+        curr:'USD'
+      }
+    };
+    saveUserDataStore(store);
+  }
+}
+
+function signUpAuth(){
+  const first=document.getElementById('signup-first').value.trim();
+  const last=document.getElementById('signup-last').value.trim();
+  const email=document.getElementById('signup-email').value.trim().toLowerCase();
+  const password=document.getElementById('signup-pw').value;
+  if(!first||!last||!email||!password){showToast('Please complete all sign up fields', true);return;}
+  if(!isValidEmail(email)){showToast('Please enter a valid email with @', true);return;}
+  if(!isValidPassword(password)){showToast('Password must be 8-15 chars and include at least 1 special character', true);return;}
+  const users=getUsers();
+  if(users.some(u=>u.email===email)){showToast('Account already exists. Please sign in.', true);switchAuthTab('signin');return;}
+  users.push({first,last,email,password,createdAt:new Date().toISOString()});
+  saveUsers(users);
+  authState.isAuthenticated=true;
+  authState.userEmail=email;
+  localStorage.setItem(LS_KEYS.session, email);
+  resetProfileForUser((first+' '+last).trim());
+  transactions=[];
+  nextId=1;
+  saveUserScopedState();
+  showToast('Account created. Continue onboarding.');
+  showScreen('screen-onboarding');
+}
+
+function signInAuth(){
+  const email=document.getElementById('signin-email').value.trim().toLowerCase();
+  const password=document.getElementById('signin-pw').value;
+  if(!email||!password){showToast('Please enter email and password', true);return;}
+  if(!isValidEmail(email)){showToast('Please enter a valid email with @', true);return;}
+  if(!isValidPassword(password)){showToast('Password must be 8-15 chars and include at least 1 special character', true);return;}
+  const user=getUsers().find(u=>u.email===email&&u.password===password);
+  if(!user){showToast('Invalid email or password', true);return;}
+  authState.isAuthenticated=true;
+  authState.userEmail=email;
+  localStorage.setItem(LS_KEYS.session, email);
+  loadUserScopedState(email);
+  if(!profile.name) profile.name=((user.first||'')+' '+(user.last||'')).trim();
+  showToast('Signed in successfully');
+  enterDashboard();
+}
+
+/* ═══════════════════════════════════════════
+   ONBOARDING
+═══════════════════════════════════════════ */
+let obCurrent=0;
+const obProgressPcts=[20,40,60,80,100];
+
+function obGoTo(step){
+  // Hide current panel
+  const curPanel = document.getElementById('ob-panel-'+obCurrent);
+  if(curPanel) curPanel.classList.remove('active');
+
+  // Update sidebar step tracker
+  const curSide = document.getElementById('obs-'+obCurrent);
+  if(curSide){
+    curSide.classList.remove('active');
+    if(step > obCurrent){
+      curSide.classList.add('done');
+      const dot = curSide.querySelector('.ob-dot');
+      if(dot) dot.innerHTML=`<svg viewBox="0 0 24 24" width="10" height="10" stroke="white" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    }
+  }
+
+  obCurrent = step;
+
+  // Show new panel
+  const newPanel = document.getElementById('ob-panel-'+step);
+  if(newPanel) newPanel.classList.add('active');
+
+  // Update sidebar active (only steps 0-4 have sidebar items)
+  if(step <= 4){
+    const newSide = document.getElementById('obs-'+step);
+    if(newSide) newSide.classList.add('active');
+  }
+
+  // Update progress bar
+  document.getElementById('ob-progress').style.width = obProgressPcts[Math.min(step,4)] + '%';
+
+  if(step === 4) obBuildReview();
+}
+function obSelectType(el){
+  document.querySelectorAll('.ob-creator-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');profile.type=el.dataset.val;
+  document.getElementById('ob-next-0').disabled=false;
+}
+function obTogglePlatform(el){
+  el.classList.toggle('selected');const val=el.dataset.val;
+  if(el.classList.contains('selected')){if(!profile.platforms.includes(val))profile.platforms.push(val);}
+  else{profile.platforms=profile.platforms.filter(p=>p!==val);}
+  document.getElementById('ob-next-1').disabled=profile.platforms.length===0;
+}
+function obSelectGoal(el){
+  document.querySelectorAll('.ob-goal-item').forEach(g=>g.classList.remove('selected'));
+  el.classList.add('selected');profile.goal=el.dataset.val;
+  document.getElementById('ob-next-2').disabled=false;
+}
+function obCheckName(){
+  profile.name=document.getElementById('ob-name').value.trim();
+  document.getElementById('ob-next-3').disabled=profile.name.length<2;
+}
+function obBuildReview(){
+  profile.brand=document.getElementById('ob-brand').value.trim();
+  document.getElementById('ob-review-name').textContent=profile.name;
+  document.getElementById('ob-rv-type').textContent=profile.type;
+  document.getElementById('ob-rv-count').textContent=profile.platforms.length+' selected';
+  document.getElementById('ob-rv-chips').innerHTML=profile.platforms.map(p=>`<span class="ob-review-chip">${p}</span>`).join('');
+  document.getElementById('ob-rv-goal').textContent=profile.goal;
+  document.getElementById('ob-rv-name').textContent=profile.name+(profile.brand?' · '+profile.brand:'');
+}
+function obLaunch(){
+  // Mark step 4 done in sidebar
+  const sd4 = document.getElementById('obs-4');
+  if(sd4){
+    sd4.classList.remove('active');
+    sd4.classList.add('done');
+    const dot = sd4.querySelector('.ob-dot');
+    if(dot) dot.innerHTML=`<svg viewBox="0 0 24 24" width="10" height="10" stroke="white" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+  }
+  // Hide current panel
+  const curPanel = document.getElementById('ob-panel-'+obCurrent);
+  if(curPanel) curPanel.classList.remove('active');
+  obCurrent = 5;
+  document.getElementById('ob-panel-5').classList.add('active');
+  document.getElementById('ob-progress').style.width = '100%';
+
+  const initials = profile.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'CL';
+  document.getElementById('ob-success-name').textContent = profile.name;
+  document.getElementById('ob-success-avatar').textContent = initials;
+  document.getElementById('ob-success-full-name').textContent = profile.name+(profile.brand?' · '+profile.brand:'');
+  document.getElementById('ob-success-type-line').textContent = profile.type+' · '+profile.platforms.length+' platform'+(profile.platforms.length!==1?'s':'');
+}
+function enterDashboard(){
+  if(!authState.isAuthenticated){showToast('Please sign in first',true);showScreen('screen-login');return;}
+  applyProfileToApp();
+  showScreen('screen-app');
+  setTimeout(()=>{ showPage('dashboard'); showToast('Welcome to MoneyHub, '+profile.name+'! 🎉'); }, 50);
+}
+
+function applyProfileToApp(){
+  const initials = profile.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'CL';
+
+  // ── 1. Avatars & name ──
+  document.querySelectorAll('.avatar').forEach(a=>a.textContent=initials);
+
+  // ── 2. Dashboard welcome subtitle ──
+  const subEl=document.getElementById('dash-sub');
+  if(subEl) subEl.textContent='Your financial command center';
+
+  // ── 3. Sidebar trial label = creator type ──
+  const tl=document.getElementById('sb-trial-label');
+  if(tl && profile.type) tl.textContent=profile.type;
+
+  // ── 4. FILTER transactions to only the user's chosen platforms ──
+  //    Income transactions: keep selected platforms.
+  //    Expenses: always keep all (platform '—').
+  if(profile.platforms.length>0){
+    const sourceTx = Array.isArray(transactions) ? transactions : [];
+    transactions = sourceTx.filter(t=>
+      t.type==='expense' || profile.platforms.includes(t.platform)
+    );
+    nextId = Math.max(...transactions.map(t=>t.id),0) + 1;
+  } else {
+    nextId = Math.max(...transactions.map(t=>t.id),0) + 1;
+  }
+
+  const goalEl=document.getElementById('goal-insight-text');
+  if(goalEl){
+    goalEl.textContent=profile.goal
+      ? 'Revenue goal: '+profile.goal+'. Dashboard tips and score recommendations are adjusted to this goal.'
+      : 'Set your revenue goal in onboarding to tailor guidance.';
+  }
+
+  // ── 5. Modal platform dropdown = only user's platforms ──
+  const sel=document.getElementById('f-platform');
+  if(sel){
+    const opts = profile.platforms.length>0 ? profile.platforms : ['YouTube','Twitch','TikTok','Sponsorship','Affiliate','Patreon','Merch','Other'];
+    sel.innerHTML=opts.map(p=>`<option value="${p}">${p}</option>`).join('')+'<option value="—">—</option>';
+  }
+
+  // ── 6. P&L platform dropdown = user's platforms ──
+  const plSel=document.getElementById('pl-platform');
+  if(plSel){
+    const platOpts = profile.platforms.length>0 ? profile.platforms : ['YouTube','TikTok','Instagram','Twitch','Podcast','Other'];
+    plSel.innerHTML=platOpts.map(p=>`<option value="${p}">${p}</option>`).join('');
+  }
+
+  // ── 7. Income page subtitle ──
+  const incSub=document.getElementById('income-sub');
+  if(incSub && profile.platforms.length>0){
+    incSub.textContent=profile.platforms.slice(0,3).join(', ')+(profile.platforms.length>3?' + '+(profile.platforms.length-3)+' more':'');
+  }
+
+  // ── 8. Dashboard topbar title personalised ──
+  const dashTitle=document.querySelector('#page-dashboard .tb-title');
+  if(dashTitle && profile.name) dashTitle.textContent='Dashboard';
+
+  // ── 9. Creator type badge in sidebar trial block label ──
+  const trialLabel=document.querySelector('.trial-label');
+  if(trialLabel && profile.type) trialLabel.textContent=profile.type;
+
+  applyI18n();
+  saveProfile();
+  saveTransactions();
+}
+
+/* ═══════════════════════════════════════════
+   LANGUAGE / CURRENCY MODAL
+═══════════════════════════════════════════ */
+let pendingLang=profile.lang, pendingCurr=profile.curr;
+
+function openLangModal(){ pendingLang=profile.lang; pendingCurr=profile.curr; document.getElementById('lang-modal-bg').classList.add('open'); }
+function closeLangModal(){ document.getElementById('lang-modal-bg').classList.remove('open'); }
+
+function selectLang(el){
+  document.querySelectorAll('#lm-lang-grid .lm-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected'); pendingLang=el.dataset.lang;
+}
+function selectCurr(el){
+  document.querySelectorAll('#lm-curr-grid .lm-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected'); pendingCurr=el.dataset.curr;
+}
+function applyLangCurr(){
+  profile.lang=pendingLang; profile.curr=pendingCurr;
+  document.documentElement.dir=profile.lang==='ar'?'rtl':'ltr';
+  document.getElementById('sb-lang-display').textContent=LANG_LABELS[profile.lang]+' · '+CURR_SYMBOL[profile.curr];
+  applyI18n();
+  closeLangModal();
+  const active=document.querySelector('.nav-item.active');
+  if(active) showPage(active.dataset.page);
+  saveProfile();
+  showToast('Language & currency updated');
+}
+function applyI18n(){
+  // Nav items
+  const navMap={dashboard:'dashboard',income:'income',expenses:'expenses',transactions:'transactions',analytics:'analytics'};
+  document.querySelectorAll('.nav-item[data-page]').forEach(n=>{
+    const page=n.dataset.page;
+    const key=Object.keys(navMap).find(k=>navMap[k]===page);
+    if(key) n.childNodes[n.childNodes.length-1].textContent=' '+t(key);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   PLATFORM CONFIG
+═══════════════════════════════════════════ */
+const PLATFORMS={
+  YouTube:{color:'#FF0000',logo:`<svg viewBox="0 0 24 24" fill="#FF0000" width="18" height="18"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>`,bg:'#fff0f0'},
+  Twitch:{color:'#9146FF',logo:`<svg viewBox="0 0 24 24" fill="#9146FF" width="18" height="18"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>`,bg:'#f3eeff'},
+  TikTok:{color:'#000000',logo:`<svg viewBox="0 0 24 24" fill="#000" width="16" height="16"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,bg:'#f5f5f5'},
+  Sponsorship:{color:'#1d4ed8',logo:`<svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/></svg>`,bg:'#eff4ff'},
+  Affiliate:{color:'#15803d',logo:`<svg viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,bg:'#f0fdf4'},
+  Patreon:{color:'#FF424D',logo:`<svg viewBox="0 0 24 24" fill="#FF424D" width="18" height="18"><path d="M14.82 2.41c3.96 0 7.18 3.24 7.18 7.21 0 3.96-3.22 7.18-7.18 7.18-3.97 0-7.21-3.22-7.21-7.18 0-3.97 3.24-7.21 7.21-7.21M2 21.6h3.5V2.41H2V21.6z"/></svg>`,bg:'#fff5f5'},
+  Merch:{color:'#f59e0b',logo:`<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="16" height="16"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,bg:'#fffbeb'},
+  '—':{color:'#a8abb4',logo:`<svg viewBox="0 0 24 24" fill="none" stroke="#a8abb4" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg>`,bg:'#f5f6f8'}
+};
+
+/* ═══════════════════════════════════════════
+   TRANSACTIONS DATA  
+   BASE_TRANSACTIONS = full seed data for all platforms.
+   'transactions' is filtered to the user's chosen platforms
+   when they complete onboarding (see applyProfileToApp).
+═══════════════════════════════════════════ */
+const BASE_TRANSACTIONS=[
+  // ── MARCH 2025 ──
+  {id:1, type:'income', desc:'Nike sponsorship',           platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:2000, date:'2025-03-14'},
+  {id:2, type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:2840, date:'2025-03-10'},
+  {id:3, type:'income', desc:'Twitch subscriptions',       platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:1600, date:'2025-03-08'},
+  {id:4, type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:420,  date:'2025-03-05'},
+  {id:5, type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:380,  date:'2025-03-06'},
+  {id:6, type:'income', desc:'Patreon memberships',        platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:740,  date:'2025-03-01'},
+  {id:7, type:'income', desc:'Merch drop – spring tee',    platform:'Merch',       category:'Merch sales',   bizper:'Business', amount:920,  date:'2025-03-09'},
+  {id:8, type:'expense',desc:'Sony camera lens',           platform:'—',           category:'Gear',          bizper:'Business', amount:480,  date:'2025-03-12'},
+  {id:9, type:'expense',desc:'Adobe Creative Cloud',       platform:'—',           category:'Software',      bizper:'Business', amount:55,   date:'2025-03-01'},
+  {id:10,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2025-03-01'},
+  {id:11,type:'expense',desc:'Internet & utilities',       platform:'—',           category:'Software',      bizper:'Business', amount:90,   date:'2025-03-03'},
+  // ── FEBRUARY 2025 ──
+  {id:12,type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:2650, date:'2025-02-28'},
+  {id:13,type:'income', desc:'Adidas sponsorship',         platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:1800, date:'2025-02-20'},
+  {id:14,type:'income', desc:'Twitch subscriptions',       platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:1420, date:'2025-02-15'},
+  {id:15,type:'income', desc:'Patreon membership',         platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:680,  date:'2025-02-01'},
+  {id:16,type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:310,  date:'2025-02-12'},
+  {id:17,type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:290,  date:'2025-02-10'},
+  {id:18,type:'income', desc:'Merch drop – hoodie',        platform:'Merch',       category:'Merch sales',   bizper:'Business', amount:610,  date:'2025-02-18'},
+  {id:19,type:'expense',desc:'Microphone upgrade',         platform:'—',           category:'Gear',          bizper:'Business', amount:220,  date:'2025-02-18'},
+  {id:20,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2025-02-01'},
+  {id:21,type:'expense',desc:'Notion + Figma',             platform:'—',           category:'Software',      bizper:'Business', amount:42,   date:'2025-02-05'},
+  {id:22,type:'expense',desc:'Groceries',                  platform:'—',           category:'Food',          bizper:'Personal', amount:180,  date:'2025-02-14'},
+  // ── JANUARY 2025 ──
+  {id:23,type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:3100, date:'2025-01-31'},
+  {id:24,type:'income', desc:'YouTube Shorts bonus',       platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:320,  date:'2025-01-25'},
+  {id:25,type:'income', desc:'Samsung sponsorship',        platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:2500, date:'2025-01-18'},
+  {id:26,type:'income', desc:'Twitch subscriptions',       platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:1550, date:'2025-01-15'},
+  {id:27,type:'income', desc:'Patreon membership',         platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:720,  date:'2025-01-01'},
+  {id:28,type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:340,  date:'2025-01-12'},
+  {id:29,type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:265,  date:'2025-01-20'},
+  {id:30,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2025-01-01'},
+  {id:31,type:'expense',desc:'Adobe Creative Cloud',       platform:'—',           category:'Software',      bizper:'Business', amount:55,   date:'2025-01-03'},
+  {id:32,type:'expense',desc:'Creator conference ticket',  platform:'—',           category:'Travel',        bizper:'Business', amount:350,  date:'2025-01-22'},
+  // ── DECEMBER 2024 ──
+  {id:33,type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:3840, date:'2024-12-31'},
+  {id:34,type:'income', desc:'Holiday sponsorship – Apple',platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:3200, date:'2024-12-15'},
+  {id:35,type:'income', desc:'Twitch Bits & subs',         platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:1900, date:'2024-12-20'},
+  {id:36,type:'income', desc:'Patreon membership',         platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:750,  date:'2024-12-01'},
+  {id:37,type:'income', desc:'Merch drop – hoodie',        platform:'Merch',       category:'Merch sales',   bizper:'Business', amount:1240, date:'2024-12-10'},
+  {id:38,type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:410,  date:'2024-12-08'},
+  {id:39,type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:230,  date:'2024-12-18'},
+  {id:40,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2024-12-01'},
+  {id:41,type:'expense',desc:'Video editing PC upgrade',   platform:'—',           category:'Gear',          bizper:'Business', amount:1800, date:'2024-12-05'},
+  {id:42,type:'expense',desc:'Groceries',                  platform:'—',           category:'Food',          bizper:'Personal', amount:210,  date:'2024-12-20'},
+  // ── NOVEMBER 2024 ──
+  {id:43,type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:2920, date:'2024-11-30'},
+  {id:44,type:'income', desc:'Skillshare sponsorship',     platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:1500, date:'2024-11-14'},
+  {id:45,type:'income', desc:'Twitch subscriptions',       platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:1320, date:'2024-11-15'},
+  {id:46,type:'income', desc:'Patreon membership',         platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:690,  date:'2024-11-01'},
+  {id:47,type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:280,  date:'2024-11-20'},
+  {id:48,type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:260,  date:'2024-11-12'},
+  {id:49,type:'income', desc:'Merch sales',                platform:'Merch',       category:'Merch sales',   bizper:'Business', amount:480,  date:'2024-11-22'},
+  {id:50,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2024-11-01'},
+  {id:51,type:'expense',desc:'Adobe Creative Cloud',       platform:'—',           category:'Software',      bizper:'Business', amount:55,   date:'2024-11-03'},
+  {id:52,type:'expense',desc:'Dining out',                 platform:'—',           category:'Food',          bizper:'Personal', amount:145,  date:'2024-11-25'},
+  // ── OCTOBER 2024 ──
+  {id:53,type:'income', desc:'YouTube ad revenue',         platform:'YouTube',     category:'Ad revenue',    bizper:'Business', amount:2600, date:'2024-10-31'},
+  {id:54,type:'income', desc:'Nord VPN sponsorship',       platform:'Sponsorship', category:'Brand deal',    bizper:'Business', amount:1200, date:'2024-10-10'},
+  {id:55,type:'income', desc:'Twitch subscriptions',       platform:'Twitch',      category:'Subscriptions', bizper:'Business', amount:980,  date:'2024-10-15'},
+  {id:56,type:'income', desc:'Patreon membership',         platform:'Patreon',     category:'Subscriptions', bizper:'Business', amount:650,  date:'2024-10-01'},
+  {id:57,type:'income', desc:'Affiliate commissions',      platform:'Affiliate',   category:'Affiliate',     bizper:'Business', amount:190,  date:'2024-10-22'},
+  {id:58,type:'income', desc:'TikTok Creator Fund',        platform:'TikTok',      category:'Ad revenue',    bizper:'Business', amount:210,  date:'2024-10-14'},
+  {id:59,type:'income', desc:'Merch sales',                platform:'Merch',       category:'Merch sales',   bizper:'Business', amount:360,  date:'2024-10-20'},
+  {id:60,type:'expense',desc:'Monthly rent',               platform:'—',           category:'Housing',       bizper:'Personal', amount:1200, date:'2024-10-01'},
+  {id:61,type:'expense',desc:'Ring light + stand',         platform:'—',           category:'Gear',          bizper:'Business', amount:95,   date:'2024-10-12'},
+  {id:62,type:'expense',desc:'Adobe Creative Cloud',       platform:'—',           category:'Software',      bizper:'Business', amount:55,   date:'2024-10-03'},
+];
+
+// 'transactions' is user-scoped data loaded after sign-in.
+let transactions=[];
+let nextId=1,currentFilter='all',sortMode='date_desc',modalType='income',charts={},expenseToggles={};
+let dashboardScope='monthly';
+let dashboardRange='this';
+let appTheme='light';
+
+const getIncome=tx=>tx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+const getExpenses=tx=>tx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+const getBiz=tx=>tx.filter(t=>t.type==='expense'&&t.bizper==='Business').reduce((s,t)=>s+t.amount,0);
+const getPer=tx=>tx.filter(t=>t.type==='expense'&&t.bizper==='Personal').reduce((s,t)=>s+t.amount,0);
+
+function monthFromDateStr(ds){
+  const d=new Date(ds+'T00:00:00');
+  return {y:d.getFullYear(),m:d.getMonth()};
+}
+
+function getDashboardTransactions(){
+  if(dashboardScope==='annual'){
+    const years=transactions.map(t=>monthFromDateStr(t.date).y);
+    const activeYear=Math.max(...years);
+    return transactions.filter(t=>monthFromDateStr(t.date).y===activeYear);
+  }
+  const months=transactions.map(t=>monthFromDateStr(t.date));
+  months.sort((a,b)=>a.y===b.y?a.m-b.m:a.y-b.y);
+  const latest=months[months.length-1];
+  if(!latest) return transactions;
+  const target = dashboardRange==='last'
+    ? (latest.m===0 ? {y:latest.y-1,m:11} : {y:latest.y,m:latest.m-1})
+    : latest;
+  return transactions.filter(t=>{
+    const mm=monthFromDateStr(t.date);
+    return mm.y===target.y&&mm.m===target.m;
+  });
+}
+
+function setDashboardScope(scope, el){
+  dashboardScope=scope;
+  document.querySelectorAll('#dashboard-tabs .stab[data-scope]').forEach(s=>s.classList.toggle('active', s.dataset.scope===scope));
+  const rangeTabs=document.querySelectorAll('#dashboard-tabs .stab[data-range]');
+  rangeTabs.forEach(s=>s.style.display=scope==='monthly'?'block':'none');
+  renderDashboard();
+  renderTrend();
+  renderSplitDonut();
+}
+
+function setDashboardRange(range, el){
+  dashboardRange=range;
+  document.querySelectorAll('#dashboard-tabs .stab[data-range]').forEach(s=>s.classList.toggle('active', s.dataset.range===range));
+  renderDashboard();
+  renderTrend();
+  renderSplitDonut();
+}
+
+/* ═══════════════════════════════════════════
+   RENDER DASHBOARD
+═══════════════════════════════════════════ */
+function renderDashboard(){
+  const dashTx=getDashboardTransactions();
+  const inc=getIncome(dashTx),exp=getExpenses(dashTx),prof=inc-exp;
+  document.getElementById('d-income').textContent=fmt(inc);
+  document.getElementById('d-expenses').textContent=fmt(exp);
+  document.getElementById('d-profit').textContent=fmt(prof);
+  const labelPrefix=dashboardScope==='annual'?'Annual':'Monthly';
+  document.getElementById('d-label-income').textContent=labelPrefix+' income';
+  document.getElementById('d-label-expense').textContent=labelPrefix+' expenses';
+  document.getElementById('d-label-profit').textContent=labelPrefix+' net';
+  // MoM change
+  const tl=buildIncomeTimeline();
+  let momText='+12% vs last month';
+  if(tl.length>=2){const last=tl[tl.length-1][1],prev=tl[tl.length-2][1];const p=Math.round((last-prev)/prev*100);momText=(p>=0?'+':'')+p+'% vs last month';}
+  document.getElementById('d-income-ch').textContent=momText;
+  document.getElementById('d-exp-ch').textContent=fmt(getBiz(dashTx))+' biz · '+fmt(getPer(dashTx))+' personal';
+  document.getElementById('d-margin').textContent=inc>0?Math.round(prof/inc*100)+'% margin':'—';
+  document.getElementById('trend-this').textContent=fmt(inc);
+
+  // Expense toggles
+  const exps=dashTx.filter(t=>t.type==='expense').slice(0,5);
+  exps.forEach(t=>{if(expenseToggles[t.id]===undefined)expenseToggles[t.id]=true;});
+  const catSVGs={
+    Gear:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="13" height="13"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+    Software:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="13" height="13"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>`,
+    Housing:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="13" height="13"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+    Travel:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="13" height="13"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/></svg>`,
+  };
+  const defSVG=`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="13" height="13"><circle cx="12" cy="12" r="10"/></svg>`;
+  const etEl=document.getElementById('expense-toggle-list');
+  if(etEl) etEl.innerHTML=exps.map(t=>{
+    const on=expenseToggles[t.id];
+    return `<div class="et-row" onclick="toggleExpense(${t.id})"><div class="et-logo">${catSVGs[t.category]||defSVG}</div><div class="et-info"><div class="et-name" style="color:${on?'var(--black)':'var(--s4)'}">${t.desc}</div><div class="et-meta">${t.category} · ${fmtDate(t.date)}</div></div><div class="et-right"><span class="tag ${t.bizper==='Business'?'tag-biz':'tag-per'}">${t.bizper}</span><div class="et-amount" style="opacity:${on?1:0.4}">-${fmt(t.amount)}</div><div class="et-toggle ${on?'on':''}" id="toggle-${t.id}"><div class="et-toggle-knob"></div></div></div></div>`;
+  }).join('');
+
+  // Health score widget
+  renderDashboardHealthWidget();
+
+  const subLabel = dashboardScope==='annual'
+    ? 'Annual view for current year'
+    : (dashboardRange==='this'?'Monthly view · This month':'Monthly view · Last month');
+  document.getElementById('dash-sub').textContent=subLabel;
+}
+function toggleExpense(id){expenseToggles[id]=!expenseToggles[id]; renderDashboard(); setTimeout(()=>renderSplitDonut(),50);}
+
+/* ═══════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════ */
+function renderTrend(){
+  const ctx=document.getElementById('trendChart');if(!ctx)return;
+  if(charts.trend)charts.trend.destroy();
+  const labels=['Oct','Nov','Dec','Jan','Feb','Mar','Apr*'];
+  const actual=[4200,5100,3900,5500,6100,getIncome(getDashboardTransactions()),null];
+  const pred=[null,null,null,null,null,getIncome(transactions),5800];
+  charts.trend=new Chart(ctx,{type:'line',data:{labels,datasets:[
+    {data:actual,borderColor:'#1a6b3c',backgroundColor:'rgba(26,107,60,0.08)',borderWidth:2,tension:0.4,fill:true,pointBackgroundColor:'#1a6b3c',pointRadius:3,spanGaps:true},
+    {data:pred,borderColor:'#1a6b3c',borderDash:[4,4],borderWidth:1.5,backgroundColor:'transparent',tension:0.4,pointRadius:0,spanGaps:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y?fmt(c.parsed.y):''}}},scales:{x:{grid:{display:false},ticks:{color:'#a8abb4',font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8abb4',font:{size:10},callback:v=>CURR_SYMBOL[profile.curr]+v/1000+'k'}}}}});
+}
+
+function renderSplitDonut(tab){
+  const ctx=document.getElementById('splitDonut');if(!ctx)return;
+  if(charts.donut)charts.donut.destroy();
+  const dashTx=getDashboardTransactions();
+  const incomeTotal=getIncome(dashTx);
+  const expenseTotal=getExpenses(dashTx);
+  const total=incomeTotal+expenseTotal;
+  const labels=['Income','Expenses'];
+  const data=[incomeTotal,expenseTotal];
+  const colors=['#1a6b3c','#c0392b'];
+  document.getElementById('donut-val').textContent=fmt(total);
+  charts.donut=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:3,borderColor:'#ffffff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)+' ('+Math.round((c.raw/(total||1))*100)+'%)'}}}}});
+  document.getElementById('donut-legend').innerHTML=labels.map((name,i)=>`<div class="dl-item"><div class="dl-dot" style="background:${colors[i]}"></div><span class="dl-name">${name}</span><span class="dl-pct">${total?Math.round((data[i]/total)*100):0}%</span></div>`).join('');
+}
+function setSplitTab(){ renderSplitDonut(); }
+
+function renderAnalyticsCharts(){
+  // Populate analytics KPIs from real data
+  const inc=getIncome(transactions),exp=getExpenses(transactions);
+  const tl=buildIncomeTimeline();
+  const avgProfit=tl.length?Math.round((inc-exp)/tl.length):inc-exp;
+  const margin=inc>0?Math.round((inc-exp)/inc*100):0;
+  const platTotals=buildPlatformTotals();
+  const topPlat=platTotals[0]||['—',0];
+  const topPct=inc>0?Math.round(topPlat[1]/inc*100):0;
+  const el=e=>document.getElementById(e);
+  if(el('an-income')) el('an-income').textContent=fmt(inc);
+  if(el('an-income-ch')) el('an-income-ch').textContent=`Across ${tl.length} months`;
+  if(el('an-profit')) el('an-profit').textContent=fmt(avgProfit);
+  if(el('an-margin')) el('an-margin').textContent=margin+'% avg margin';
+  if(el('an-top-plat')) el('an-top-plat').textContent=topPlat[0];
+  if(el('an-top-pct')) el('an-top-pct').textContent=topPct+'% of income';
+
+  const bc=document.getElementById('barChart');
+  if(bc){
+    if(charts.bar)charts.bar.destroy();
+    // Use real monthly data
+    const last3=buildIncomeTimeline().slice(-3);
+    const incLabels=last3.map(([k])=>getMonthLabel(k));
+    const incData=last3.map(([,v])=>v);
+    const expByMonth={};
+    transactions.filter(t=>t.type==='expense').forEach(t=>{const k=getMonthKey(t.date);expByMonth[k]=(expByMonth[k]||0)+t.amount;});
+    const expData=last3.map(([k])=>expByMonth[k]||0);
+    const incomeGradient=bc.getContext('2d').createLinearGradient(0,0,0,180);
+    incomeGradient.addColorStop(0,'rgba(34,197,94,0.26)');
+    incomeGradient.addColorStop(1,'rgba(34,197,94,0.03)');
+    const expGradient=bc.getContext('2d').createLinearGradient(0,0,0,180);
+    expGradient.addColorStop(0,'rgba(239,68,68,0.22)');
+    expGradient.addColorStop(1,'rgba(239,68,68,0.03)');
+    charts.bar=new Chart(bc,{type:'line',data:{labels:incLabels,datasets:[
+      {label:'Income',data:incData,borderColor:'#22c55e',backgroundColor:incomeGradient,fill:true,tension:0.42,borderWidth:2.5,pointRadius:3,pointHoverRadius:4},
+      {label:'Expenses',data:expData,borderColor:'#ef4444',backgroundColor:expGradient,fill:true,tension:0.42,borderWidth:2.5,pointRadius:3,pointHoverRadius:4}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,usePointStyle:true,padding:16}}},scales:{x:{grid:{display:false},ticks:{color:'#a8abb4',font:{size:11}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#a8abb4',font:{size:11},callback:v=>fmt(v)}}}}}); }
+  const pc=document.getElementById('platformChart');
+  if(pc){
+    if(charts.platform)charts.platform.destroy();
+    const platLabels=platTotals.slice(0,5).map(([k])=>k);
+    const platData=platTotals.slice(0,5).map(([,v])=>v);
+    const platColors=platLabels.map(pl=>(PLATFORMS[pl]||PLATFORMS['—']).color);
+    charts.platform=new Chart(pc,{type:'bar',data:{labels:platLabels,datasets:[{label:'Income',data:platData,backgroundColor:platColors,borderRadius:7,borderSkipped:false,barThickness:14}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{color:'#a8abb4',font:{size:11},callback:v=>fmt(v)}},y:{grid:{display:false},ticks:{color:'#a8abb4',font:{size:11}}}}}}); }
+}
+
+/* ── DASHBOARD HEALTH WIDGET ── */
+function renderDashboardHealthWidget(){
+  const el=document.getElementById('dash-health-widget');
+  if(!el) return;
+  const h=computeHealthScore();
+  const st=getHealthStatus(h.score);
+  const r=46,cx=58,cy=58,circ=2*Math.PI*r;
+  const dash=circ*(h.score/100),gap=circ-dash;
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:18px;">
+      <div style="position:relative;width:116px;height:116px;flex-shrink:0;">
+        <svg width="116" height="116" viewBox="0 0 116 116">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--s2)" stroke-width="8"/>
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${st.color}" stroke-width="8"
+            stroke-dasharray="${dash} ${gap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:30px;font-weight:700;color:${st.color};line-height:1;">${h.score}</div>
+          <div style="font-size:9px;color:var(--s4);text-transform:uppercase;letter-spacing:.06em;">/100</div>
+        </div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:${st.color};margin-bottom:4px;">${st.emoji} ${st.label}</div>
+        <div style="font-size:11px;color:var(--s5);line-height:1.55;">
+          Financial Health Score measures how sustainable your cash flow is using spending discipline, savings rate, subscription load, and impulse spending behavior.
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── EXPENSES PAGE ── */
+function renderExpenseMetrics(){
+  const expTxs=transactions.filter(t=>t.type==='expense').sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const biz=getBiz(transactions),per=getPer(transactions),tot=biz+per,inc=getIncome(transactions);
+
+  // Category totals
+  const catTots={};
+  expTxs.forEach(t=>{catTots[t.category]=(catTots[t.category]||0)+t.amount;});
+  const catSorted=Object.entries(catTots).sort((a,b)=>b[1]-a[1]);
+
+  const metricsEl=document.getElementById('expense-metrics');
+  if(metricsEl) metricsEl.innerHTML=`
+    <div class="mc"><div class="mc-label">Business expenses</div><div class="mc-val" style="color:var(--blue);">${fmt(biz)}</div><div class="mc-sub nu">Potentially deductible</div></div>
+    <div class="mc"><div class="mc-label">Personal expenses</div><div class="mc-val">${fmt(per)}</div><div class="mc-sub gray">Not deductible</div></div>
+    <div class="mc dark"><div class="mc-label">Total expenses</div><div class="mc-val">${fmt(tot)}</div><div class="mc-sub dn">${inc?Math.round(tot/inc*100):0}% of income</div></div>`;
+
+  // Category breakdown
+  const catIcons={
+    Gear:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+    Software:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+    Housing:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+    Travel:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/></svg>`,
+    Food:`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+  };
+  const defIcon=`<svg viewBox="0 0 24 24" stroke-width="1.8" fill="none" stroke="var(--s5)" width="14" height="14"><circle cx="12" cy="12" r="10"/></svg>`;
+
+  const catHTML=catSorted.map(([cat,amt])=>{
+    const pct=tot?Math.round(amt/tot*100):0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--s2);">
+      <div style="width:28px;height:28px;border-radius:var(--r-xs);background:var(--s1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${catIcons[cat]||defIcon}</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:3px;">${cat}</div><div style="height:4px;background:var(--s2);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:99px;"></div></div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-size:13px;font-weight:600;color:var(--black);">${fmt(amt)}</div><div style="font-size:10px;color:var(--s4);">${pct}%</div></div>
+    </div>`;
+  }).join('');
+
+  // Full transaction list
+  const exSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+  const txRows=expTxs.map(t=>`<div class="tx-row"><div class="tx-nw"><div class="tx-badge ex">${exSVG}</div><div><div class="tx-name">${t.desc}</div><div class="tx-meta">${t.bizper} · ${t.category}</div></div></div><div class="tx-cell">${t.category}</div><div class="tx-cell">${fmtDate(t.date)}</div><div class="tx-amount neg">-${fmt(t.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${t.id})">Edit</button><button class="tx-btn del" onclick="deleteTx(${t.id})">Remove</button></div></div>`).join('');
+
+  const bodyEl=document.getElementById('expense-body');
+  if(bodyEl) bodyEl.innerHTML=txRows||'<div class="empty"><div class="empty-title">No expenses recorded</div><div class="empty-sub">Add your first expense above</div></div>';
+
+  // Inject category breakdown card above the table
+  const expContent=document.querySelector('#page-expenses .content');
+  let catCard=document.getElementById('expense-cat-card');
+  if(!catCard){
+    catCard=document.createElement('div');
+    catCard.id='expense-cat-card';
+    catCard.className='card';
+    catCard.style.marginBottom='12px';
+    // Insert before the tx table card
+    const txCard=document.querySelector('#page-expenses .content .card');
+    if(txCard) expContent.insertBefore(catCard,txCard);
+  }
+  catCard.innerHTML=`
+    <div class="card-head"><div class="card-title">Spending by category</div><span class="card-link" onclick="showPage('tax')">Tax report →</span></div>
+    <div class="card-body">${catHTML||'<div class="empty"><div class="empty-title">No data</div></div>'}</div>`;
+
+  // Insight
+  const existingInsight=document.getElementById('expense-insight');
+  if(!existingInsight){
+    const insightDiv=document.createElement('div');
+    insightDiv.id='expense-insight';
+    insightDiv.className='insight';
+    insightDiv.style.marginBottom='12px';
+    expContent.insertBefore(insightDiv,catCard);
+  }
+  const bizPct=tot?Math.round(biz/tot*100):0;
+  document.getElementById('expense-insight').innerHTML=`<div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span><strong>${fmt(biz)}</strong> (${bizPct}%) of your expenses are business-deductible. ${bizPct<50?'Categorizing more spend as business could reduce your tax bill.':'Good job maximising your deductions.'}</span>`;
+}
+
+
+/* ═══════════════════════════════════════════
+   INCOME PAGE
+═══════════════════════════════════════════ */
+let incomeTab='overview';
+
+function getMonthKey(date){ const d=new Date(date+'T00:00:00'); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function getMonthLabel(key){ const [y,m]=key.split('-'); return new Date(y,parseInt(m)-1,1).toLocaleDateString('en-US',{month:'short',year:'2-digit'}); }
+
+function buildIncomeTimeline(){
+  const byMonth={};
+  transactions.filter(t=>t.type==='income').forEach(t=>{ const k=getMonthKey(t.date); byMonth[k]=(byMonth[k]||0)+t.amount; });
+  return Object.entries(byMonth).sort((a,b)=>a[0].localeCompare(b[0]));
+}
+
+function buildPlatformTotals(){
+  const tots={};
+  transactions.filter(t=>t.type==='income').forEach(t=>{ tots[t.platform]=(tots[t.platform]||0)+t.amount; });
+  return Object.entries(tots).sort((a,b)=>b[1]-a[1]);
+}
+
+function computeForecast(){
+  const tl=buildIncomeTimeline();
+  if(tl.length<2) return {amt:0,pct:0,dir:'up'};
+  const recent=tl.slice(-3).map(([,v])=>v);
+  const weights=recent.length===3?[1,2,3]:recent.length===2?[1,2]:[1];
+  const wSum=weights.reduce((a,b)=>a+b,0);
+  const weighted=recent.reduce((s,v,i)=>s+v*weights[i],0)/wSum;
+  const forecast=Math.round(weighted*1.04);
+  const last=tl[tl.length-1][1];
+  const pct=last>0?Math.round((forecast-last)/last*100):0;
+  return {amt:forecast,pct:Math.abs(pct),dir:pct>=0?'up':'dn'};
+}
+
+function generateAITip(){
+  const tl=buildIncomeTimeline(); const plat=buildPlatformTotals();
+  const inc=getIncome(transactions); const exp=getExpenses(transactions);
+  const tips=[];
+  if(tl.length>=2){ const last=tl[tl.length-1][1],prev=tl[tl.length-2][1]; const p=Math.round((last-prev)/prev*100);
+    if(p<-10) tips.push(`Income fell ${Math.abs(p)}% vs last month. Review which platforms underperformed.`);
+    else if(p>15) tips.push(`Income grew ${p}% — your strongest recent month. Double down on what's working.`); }
+  if(plat.length>=2){ const topPct=Math.round(plat[0][1]/inc*100);
+    if(topPct>60) tips.push(`${plat[0][0]} drives ${topPct}% of income — consider growing a second stream to reduce risk.`);
+    const botPct=Math.round(plat[plat.length-1][1]/inc*100);
+    if(botPct<5) tips.push(`${plat[plat.length-1][0]} only contributes ${botPct}% of income. Invest more or reallocate your time.`); }
+  if(inc>0){ const margin=Math.round((inc-exp)/inc*100);
+    if(margin<40) tips.push(`Your profit margin is ${margin}% — cutting non-essential subscriptions could push this above 50%.`);
+    else tips.push(`Solid ${margin}% profit margin. You're keeping expenses lean.`); }
+  const biz=getBiz(transactions);
+  if(biz>300) tips.push(`$${biz.toLocaleString()} in business expenses may be tax-deductible. Check the Tax Report.`);
+  const streams=new Set(transactions.filter(t=>t.type==='income').map(t=>t.platform)).size;
+  if(streams===1) tips.push(`You have only 1 active income stream. Creators with 3+ streams earn 2× more on average.`);
+  return tips.length>0?tips[0]:'Keep logging consistently for smarter AI insights.';
+}
+
+function renderIncomeMetrics(){
+  // Sync subtitle with onboarding selected platforms
+  const sub=document.getElementById('income-sub');
+  if(sub && profile.platforms.length>0) sub.textContent=profile.platforms.slice(0,3).join(', ')+(profile.platforms.length>3?' + more':'');
+  renderIncomeKPIStrip();
+  renderIncomeTabContent(incomeTab);
+  document.querySelectorAll('.income-tab').forEach(tab=>{
+    tab.onclick=function(){
+      document.querySelectorAll('.income-tab').forEach(t=>t.classList.remove('active'));
+      this.classList.add('active'); incomeTab=this.dataset.tab; renderIncomeTabContent(incomeTab);
+    };
+  });
+}
+
+function renderIncomeKPIStrip(){
+  const incTxs=transactions.filter(t=>t.type==='income');
+  const tl=buildIncomeTimeline();
+  const totalInc=incTxs.reduce((s,t)=>s+t.amount,0);
+  const months=tl.length||1; const avgMonth=Math.round(totalInc/months);
+  const streams=new Set(incTxs.map(t=>t.platform)).size;
+  const forecast=computeForecast();
+  const exp=getExpenses(transactions); const netProfit=totalInc-exp;
+  let momPct=null,momDir='up';
+  if(tl.length>=2){ const last=tl[tl.length-1][1],prev=tl[tl.length-2][1]; momPct=Math.round((last-prev)/prev*100); momDir=momPct>=0?'up':'dn'; }
+  const momBadge=momPct!==null?`<div class="ikpi-badge ${momDir}">${momDir==='up'?'↑':'↓'} ${Math.abs(momPct)}% MoM</div>`:'';
+  const strip=document.getElementById('income-kpi-strip');
+  if(!strip) return;
+  strip.innerHTML=`
+    <div class="ikpi">
+      <div class="ikpi-label">Total income</div>
+      <div class="ikpi-val">${fmt(totalInc)}</div>
+      <div class="ikpi-sub">${fmt(avgMonth)}/mo avg · ${months}mo</div>${momBadge}
+    </div>
+    <div class="ikpi">
+      <div class="ikpi-label">Net profit</div>
+      <div class="ikpi-val" style="color:${netProfit>=0?'var(--accent)':'var(--red)'};">${netProfit>=0?'':'-'}${fmt(Math.abs(netProfit))}</div>
+      <div class="ikpi-sub">${totalInc>0?Math.round(netProfit/totalInc*100):0}% margin</div>
+    </div>
+    <div class="ikpi">
+      <div class="ikpi-label">Active streams</div>
+      <div class="ikpi-val">${streams}</div>
+      <div class="ikpi-sub">${[...new Set(incTxs.map(t=>t.platform))].join(', ')||'None yet'}</div>
+    </div>
+    <div class="ikpi">
+      <div class="ikpi-label">AI forecast</div>
+      <div class="ikpi-val">${fmt(forecast.amt)}</div>
+      <div class="ikpi-sub"><span class="ikpi-badge ${forecast.dir}">${forecast.dir==='up'?'↑':'↓'}${forecast.pct}% projected</span></div>
+    </div>
+    <div class="ikpi ikpi-accent">
+      <div class="ikpi-label">Business costs</div>
+      <div class="ikpi-val">${fmt(getBiz(transactions))}</div>
+      <div class="ikpi-sub" style="color:rgba(255,255,255,.4);">${totalInc>0?Math.round(getBiz(transactions)/totalInc*100):0}% of income · deductible</div>
+    </div>`;
+}
+
+function renderIncomeTabContent(tab){
+  const wrapper=document.getElementById('income-tab-content');
+  if(!wrapper) return;
+
+  if(tab==='overview'){
+    const tl=buildIncomeTimeline(); const totalInc=getIncome(transactions);
+    const rows=tl.slice().reverse().map(([k,v],i,arr)=>{
+      const prev=arr[i+1]; const pct=prev?Math.round((v-prev[1])/prev[1]*100):null;
+      const badge=pct!==null?`<span class="ikpi-badge ${pct>=0?'up':'dn'}" style="font-size:10px;">${pct>=0?'↑':'↓'}${Math.abs(pct)}%</span>`:'';
+      const barW=totalInc>0?Math.min(100,Math.round(v/totalInc*100*tl.length*0.8)):0;
+      return `<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--s2);">
+        <div style="font-size:12px;color:var(--s5);min-width:52px;">${getMonthLabel(k)}</div>
+        <div style="flex:1;height:6px;background:var(--s2);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${barW}%;background:var(--accent);border-radius:99px;"></div></div>
+        <div style="min-width:56px;text-align:right;">${badge}</div>
+        <div style="font-size:13px;font-weight:600;color:var(--black);min-width:64px;text-align:right;">${fmt(v)}</div>
+      </div>`;
+    }).join('');
+    wrapper.innerHTML=`
+      <div class="g2">
+        <div class="card"><div class="card-head"><div class="card-title">Monthly income</div></div><div class="card-body">${rows||'<div class="empty"><div class="empty-title">No data yet</div></div>'}</div></div>
+        <div class="card"><div class="card-head"><div class="card-title">Income by platform</div></div><div class="card-body" id="income-by-platform-inner"></div></div>
+      </div>
+      <div class="insight"><div class="insight-dot"><svg viewBox="0 0 24 24" stroke-width="2.5"><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span><strong>AI insight:</strong> ${generateAITip()}</span></div>`;
+    renderPlatformBarsInner('income-by-platform-inner');
+
+  } else if(tab==='log'){
+    const incTxs=transactions.filter(t=>t.type==='income').sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const rows=incTxs.map(t=>{ const p=PLATFORMS[t.platform]||PLATFORMS['—'];
+      return `<div class="tx-row"><div class="tx-nw"><div class="tx-pllogo" style="background:${p.bg}">${p.logo}</div><div><div class="tx-name">${t.desc}</div><div class="tx-meta">${t.category}</div></div></div><div class="tx-cell">${t.platform}</div><div class="tx-cell">${fmtDate(t.date)}</div><div class="tx-amount pos">+${fmt(t.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${t.id})">Edit</button><button class="tx-btn del" onclick="deleteTx(${t.id})">Remove</button></div></div>`;
+    }).join('');
+    wrapper.innerHTML=`<div class="card"><div class="tx-head"><div class="tx-hc">Source</div><div class="tx-hc">Platform</div><div class="tx-hc">Date</div><div class="tx-hc">Amount</div><div class="tx-hc"></div></div>${rows||'<div class="empty"><div class="empty-title">No income entries</div><div class="empty-sub">Click + Add income to get started</div></div>'}</div>`;
+
+  } else if(tab==='byplatform'){
+    const platTotals=buildPlatformTotals(); const totalInc=getIncome(transactions);
+    const cards=platTotals.map(([pl,amt])=>{
+      const p=PLATFORMS[pl]||PLATFORMS['—']; const pct=totalInc?Math.round(amt/totalInc*100):0;
+      const txs=transactions.filter(t=>t.type==='income'&&t.platform===pl);
+      return `<div class="card" style="margin-bottom:10px;">
+        <div class="card-head">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:${p.bg};display:flex;align-items:center;justify-content:center;">${p.logo}</div>
+            <div><div class="card-title">${pl}</div><div style="font-size:11px;color:var(--s4);">${txs.length} transaction${txs.length!==1?'s':''}</div></div>
+          </div>
+          <div style="text-align:right;"><div style="font-size:18px;font-weight:700;color:var(--accent);">${fmt(amt)}</div><div style="font-size:11px;color:var(--s4);">${pct}% of income</div></div>
+        </div>
+        <div class="card-body">
+          <div style="height:4px;background:var(--s2);border-radius:99px;overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:${pct}%;background:${p.color};border-radius:99px;"></div></div>
+          ${txs.slice(0,3).map(t=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--s2);"><div><div style="font-size:12px;font-weight:500;color:var(--black);">${t.desc}</div><div style="font-size:10px;color:var(--s4);">${fmtDate(t.date)}</div></div><div style="font-size:12px;font-weight:600;color:var(--accent);">+${fmt(t.amount)}</div></div>`).join('')}
+          ${txs.length>3?`<div style="font-size:11px;color:var(--s4);padding-top:6px;">+${txs.length-3} more transactions</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    wrapper.innerHTML=cards||'<div class="empty"><div class="empty-title">No income recorded</div></div>';
+
+  } else if(tab==='expenses'){
+    const expTxs=transactions.filter(t=>t.type==='expense').sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const biz=getBiz(transactions),per=getPer(transactions),tot=biz+per;
+    const exSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+    const rows=expTxs.map(t=>`<div class="tx-row"><div class="tx-nw"><div class="tx-badge ex">${exSVG}</div><div><div class="tx-name">${t.desc}</div><div class="tx-meta">${t.bizper}</div></div></div><div class="tx-cell">${t.category}</div><div class="tx-cell">${fmtDate(t.date)}</div><div class="tx-amount neg">-${fmt(t.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${t.id})">Edit</button><button class="tx-btn del" onclick="deleteTx(${t.id})">Remove</button></div></div>`).join('');
+    wrapper.innerHTML=`
+      <div class="metrics" style="margin-bottom:14px;">
+        <div class="mc"><div class="mc-label">Business (deductible)</div><div class="mc-val" style="color:var(--blue);">${fmt(biz)}</div><div class="mc-sub nu">${tot?Math.round(biz/tot*100):0}% of total spend</div></div>
+        <div class="mc"><div class="mc-label">Personal</div><div class="mc-val">${fmt(per)}</div><div class="mc-sub gray">${tot?Math.round(per/tot*100):0}% of total spend</div></div>
+        <div class="mc dark"><div class="mc-label">Total expenses</div><div class="mc-val">${fmt(tot)}</div><div class="mc-sub dn">${getIncome(transactions)>0?Math.round(tot/getIncome(transactions)*100):0}% of income</div></div>
+      </div>
+      <div class="card"><div class="tx-head"><div class="tx-hc">Description</div><div class="tx-hc">Category</div><div class="tx-hc">Date</div><div class="tx-hc">Amount</div><div class="tx-hc"></div></div>${rows||'<div class="empty"><div class="empty-title">No expenses recorded</div></div>'}</div>`;
+  }
+}
+
+function renderPlatformBarsInner(elId){
+  const platTotals=buildPlatformTotals(); const totalInc=getIncome(transactions);
+  const el=document.getElementById(elId);
+  if(!el||!platTotals.length){if(el)el.innerHTML='<div class="empty"><div class="empty-title">No income data</div></div>';return;}
+  const maxVal=platTotals[0][1];
+  const barColors={YouTube:'#e52d27',Twitch:'#6441a5',Sponsorship:'#22c55e',Patreon:'#f97316',Affiliate:'#3b82f6',Merch:'#f59e0b',TikTok:'#111','—':'#a8abb4'};
+  el.innerHTML=platTotals.map(([pl,amt])=>{
+    const pct=Math.max(8,Math.round(amt/maxVal*100)); const pctOfTotal=totalInc?Math.round(amt/totalInc*100):0;
+    const col=barColors[pl]||'#8b5cf6';
+    return `<div class="ipl-row"><div class="ipl-name">${pl}</div><div class="ipl-bar-wrap"><div class="ipl-bar-fill" style="width:${pct}%;background:${col};"><span class="ipl-amount">${fmt(amt)}</span></div></div><div class="ipl-pct">${pctOfTotal}%</div></div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CONTENT P&L TRACKER
+═══════════════════════════════════════════ */
+let plEntries=[
+  {id:1,title:'Morning Routine Video',platform:'YouTube',type:'Video',spent:120,earned:380},
+  {id:2,title:'Studio Tour Reel',platform:'Instagram',type:'Short / Reel',spent:200,earned:95},
+  {id:3,title:'Gear Review – Sony A7',platform:'YouTube',type:'Video',spent:480,earned:840},
+  {id:4,title:'Day in my life Short',platform:'TikTok',type:'Short / Reel',spent:30,earned:60},
+  {id:5,title:'Live stream – Q&A',platform:'Twitch',type:'Stream',spent:0,earned:320},
+];
+let plNextId=6;
+
+function openPLForm(){ const f=document.getElementById('pl-form'); if(f){f.style.display='block';document.getElementById('pl-title').focus();} }
+function closePLForm(){ const f=document.getElementById('pl-form'); if(f) f.style.display='none'; }
+
+function savePLEntry(){
+  const title=document.getElementById('pl-title').value.trim();
+  const platform=document.getElementById('pl-platform').value;
+  const type=document.getElementById('pl-type').value;
+  const spent=parseFloat(document.getElementById('pl-spent').value)||0;
+  const earned=parseFloat(document.getElementById('pl-earned').value)||0;
+  if(!title){showToast('Please enter a content title',true);return;}
+  plEntries.unshift({id:plNextId++,title,platform,type,spent,earned});
+  closePLForm();
+  ['pl-title','pl-spent','pl-earned'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderPLPage(); showToast('Content entry saved');
+}
+
+function deletePLEntry(id){
+  plEntries=plEntries.filter(e=>e.id!==id);
+  renderPLPage(); showToast('Entry removed');
+}
+
+function renderPLPage(){
+  const totalSpent=plEntries.reduce((s,e)=>s+e.spent,0);
+  const totalEarned=plEntries.reduce((s,e)=>s+e.earned,0);
+  const totalNet=totalEarned-totalSpent;
+  const profitable=plEntries.filter(e=>e.earned>e.spent).length;
+  const roi=totalSpent>0?Math.round((totalNet/totalSpent)*100):0;
+  const metricsEl=document.getElementById('pl-metrics');
+  if(metricsEl) metricsEl.innerHTML=`
+    <div class="mc"><div class="mc-label">Total earned</div><div class="mc-val" style="color:var(--accent);">${fmt(totalEarned)}</div><div class="mc-sub up">${profitable}/${plEntries.length} profitable</div></div>
+    <div class="mc"><div class="mc-label">Total spent</div><div class="mc-val" style="color:var(--red);">${fmt(totalSpent)}</div><div class="mc-sub dn">Production costs</div></div>
+    <div class="mc dark"><div class="mc-label">Net P&L</div><div class="mc-val" style="color:${totalNet>=0?'#4ade80':'#f87171'};">${totalNet>=0?'+':''}${fmt(totalNet)}</div><div class="mc-sub ${totalNet>=0?'up':'dn'}">ROI: ${roi>=0?'+':''}${roi}%</div></div>`;
+  const body=document.getElementById('pl-body');
+  if(!body) return;
+  if(!plEntries.length){body.innerHTML='<div class="empty"><div class="empty-title">No content entries yet</div><div class="empty-sub">Click + Add content to track your first piece</div></div>';return;}
+  body.innerHTML=plEntries.map(e=>{
+    const net=e.earned-e.spent; const status=net>0?'profit':net<0?'loss':'even';
+    const maxBar=Math.max(e.spent,e.earned,1);
+    const spentPct=Math.round(e.spent/maxBar*100); const earnedPct=Math.round(e.earned/maxBar*100);
+    const roi=e.spent>0?Math.round((net/e.spent)*100):e.earned>0?100:0;
+    const insight=status==='loss'?'Consider reducing production or promotion costs.'
+      :status==='profit'?`ROI: ${roi>=0?'+':''}${roi}% — this content is working.`
+      :'Break-even. Optimize spend or promotion to turn a profit.';
+    return `<div class="pl-row">
+      <div class="pl-title-cell"><div class="pl-title">${e.title}</div><div class="pl-type">${e.platform} · ${e.type}</div><div class="pl-insight">${insight}</div></div>
+      <div class="pl-cell">${e.platform}</div>
+      <div class="pl-cell">${e.type}</div>
+      <div class="pl-spent">-${fmt(e.spent)}</div>
+      <div class="pl-earned">+${fmt(e.earned)}</div>
+      <div>
+        <div class="pl-bars">
+          <div class="pl-bar-row"><span class="pl-bar-label">Spent</span><div class="pl-bar-track"><div class="pl-bar-fill" style="width:${spentPct}%;background:var(--red);"></div></div></div>
+          <div class="pl-bar-row"><span class="pl-bar-label">Earned</span><div class="pl-bar-track"><div class="pl-bar-fill" style="width:${earnedPct}%;background:var(--accent);"></div></div></div>
+        </div>
+        <div class="pl-badge ${status}" style="margin-top:5px;">${status==='profit'?'▲ PROFIT':status==='loss'?'▼ LOSS':'● BREAK-EVEN'} ${net!==0?(net>=0?'+':'')+fmt(Math.abs(net)):''}</div>
+      </div>
+      <div class="tx-actions"><button class="tx-btn del" onclick="deletePLEntry(${e.id})">Remove</button></div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   FINANCIAL HEALTH SCORE
+═══════════════════════════════════════════ */
+function computeHealthScore(){
+  const inc=getIncome(transactions); const exp=getExpenses(transactions);
+  const budget=parseFloat(document.getElementById('fhs-budget')?.value)||5000;
+  const savingsTarget=parseFloat(document.getElementById('fhs-savings-target')?.value)||20;
+  const subsCost=parseFloat(document.getElementById('fhs-subs-cost')?.value)||150;
+  const impulseLimit=parseFloat(document.getElementById('fhs-impulse-limit')?.value)||200;
+  const tl=buildIncomeTimeline();
+  const avgMonthInc=tl.length?inc/tl.length:inc;
+  const avgMonthExp=tl.length?exp/tl.length:exp;
+  const spendRatio=budget>0?avgMonthExp/budget:1;
+  const budgetScore=spendRatio<=1?25:spendRatio<=1.2?18:spendRatio<=1.5?10:3;
+  const savings=Math.max(0,avgMonthInc-avgMonthExp);
+  const actualSavingsRate=avgMonthInc>0?Math.round(savings/avgMonthInc*100):0;
+  const savingsScore=actualSavingsRate>=savingsTarget?30:actualSavingsRate>=savingsTarget*0.5?20:actualSavingsRate>=10?12:4;
+  const softwareExp=transactions.filter(t=>t.type==='expense'&&t.category==='Software').reduce((s,t)=>s+t.amount,0);
+  const monthlySubsCost=tl.length?softwareExp/tl.length:softwareExp;
+  const subsRatio=subsCost>0?monthlySubsCost/subsCost:0;
+  const subsScore=subsRatio<=1?20:subsRatio<=1.5?14:subsRatio<=2?8:3;
+  const gearExp=transactions.filter(t=>t.type==='expense'&&t.category==='Gear').reduce((s,t)=>s+t.amount,0);
+  const monthlyImpulse=tl.length?gearExp/tl.length:gearExp;
+  const impulseRatio=impulseLimit>0?monthlyImpulse/impulseLimit:0;
+  const impulseScore=impulseRatio<=1?25:impulseRatio<=1.5?17:impulseRatio<=2?9:3;
+  return {score:budgetScore+savingsScore+subsScore+impulseScore,budgetScore,savingsScore,subsScore,impulseScore,
+    spendRatio,actualSavingsRate,savingsTarget,monthlySubsCost,subsCost,monthlyImpulse,impulseLimit,
+    avgMonthInc,avgMonthExp,budget,savings};
+}
+
+function getHealthStatus(score){
+  if(score>=80) return {label:'Excellent',color:'var(--accent)',emoji:'🟢'};
+  if(score>=60) return {label:'Good',color:'#22c55e',emoji:'🟡'};
+  if(score>=40) return {label:'Needs attention',color:'#f59e0b',emoji:'🟠'};
+  return {label:'Risky',color:'var(--red)',emoji:'🔴'};
+}
+
+function renderHealthPage(){
+  const h=computeHealthScore(); const st=getHealthStatus(h.score);
+  const r=52,cx=65,cy=65,circ=2*Math.PI*r;
+  const dash=circ*(h.score/100),gap=circ-dash;
+  const parts=[];
+  if(h.spendRatio<=1) parts.push('spending is within budget'); else parts.push(`spending is ${Math.round((h.spendRatio-1)*100)}% over budget`);
+  if(h.actualSavingsRate>=h.savingsTarget) parts.push('savings rate is healthy'); else parts.push(`savings rate (${h.actualSavingsRate}%) is below your ${h.savingsTarget}% target`);
+  if(h.monthlySubsCost>h.subsCost) parts.push('subscription costs are high');
+  const explanation=`Your ${parts.slice(0,-1).join(', ')}${parts.length>1?' and '+parts[parts.length-1]:parts[0]}.`;
+  const wrapEl=document.getElementById('fhs-wrap');
+  if(wrapEl) wrapEl.innerHTML=`
+    <div class="fhs-gauge">
+      <div class="fhs-ring-wrap">
+        <svg class="fhs-ring-svg" viewBox="0 0 130 130">
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--s2)" stroke-width="10"/>
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${st.color}" stroke-width="10"
+            stroke-dasharray="${dash} ${gap}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})" style="transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)"/>
+        </svg>
+        <div class="fhs-center"><div class="fhs-score-num" style="color:${st.color};">${h.score}</div><div class="fhs-score-denom">/ 100</div></div>
+      </div>
+      <div class="fhs-status" style="color:${st.color};">${st.emoji} ${st.label}</div>
+      <div class="fhs-desc">${explanation}</div>
+    </div>
+    <div class="fhs-factors">
+      <div style="font-size:13px;font-weight:600;color:var(--black);margin-bottom:14px;">Score breakdown</div>
+      ${renderHealthFactor('Spending vs budget',h.budgetScore,25,`Monthly: ${fmt(h.avgMonthExp)} vs ${fmt(h.budget)} budget`,Math.min(100,Math.round((1-Math.max(0,h.spendRatio-1))*100)),h.spendRatio<=1?'var(--accent)':h.spendRatio<=1.3?'#f59e0b':'var(--red)')}
+      ${renderHealthFactor('Savings rate',h.savingsScore,30,`Saving ${h.actualSavingsRate}% of income · target ${h.savingsTarget}%`,Math.min(100,Math.round(h.actualSavingsRate/Math.max(h.savingsTarget,1)*100)),h.actualSavingsRate>=h.savingsTarget?'var(--accent)':h.actualSavingsRate>=h.savingsTarget*0.5?'#f59e0b':'var(--red)')}
+      ${renderHealthFactor('Subscription load',h.subsScore,20,`${fmt(h.monthlySubsCost)}/mo in tools · limit ${fmt(h.subsCost)}`,Math.min(100,Math.round((1-Math.max(0,(h.monthlySubsCost-h.subsCost)/Math.max(h.subsCost,1)))*100)),h.monthlySubsCost<=h.subsCost?'var(--accent)':'#f59e0b')}
+      ${renderHealthFactor('Impulse spending',h.impulseScore,25,`${fmt(h.monthlyImpulse)}/mo unplanned · limit ${fmt(h.impulseLimit)}`,Math.min(100,Math.round((1-Math.max(0,(h.monthlyImpulse-h.impulseLimit)/Math.max(h.impulseLimit,1)))*100)),h.monthlyImpulse<=h.impulseLimit?'var(--accent)':'var(--red)')}
+      <div class="fhs-tip"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>${generateAITip()}</span></div>
+    </div>`;
+}
+
+function renderHealthFactor(label,score,max,sub,pct,color){
+  return `<div class="fhs-factor">
+    <div class="fhs-factor-row"><span class="fhs-factor-label">${label}</span><span class="fhs-factor-val" style="color:${color};">${score}/${max} pts</span></div>
+    <div class="fhs-factor-sub">${sub}</div>
+    <div class="fhs-track"><div class="fhs-bar" style="width:${Math.max(4,pct)}%;background:${color};"></div></div>
+  </div>`;
+}
+
+
+/* ═══════════════════════════════════════════
+   TX TABLE
+═══════════════════════════════════════════ */
+function renderTxTable(){
+  const body=document.getElementById('tx-body');if(!body)return;
+  let txs=[...transactions];
+  const q=(document.getElementById('tx-search')||{value:''}).value.toLowerCase();
+  if(q) txs=txs.filter(t=>t.desc.toLowerCase().includes(q)||t.platform.toLowerCase().includes(q)||t.category.toLowerCase().includes(q));
+  if(currentFilter!=='all') txs=txs.filter(t=>t.type===currentFilter);
+  if(sortMode==='date_desc') txs.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(sortMode==='date_asc') txs.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if(sortMode==='amount_desc') txs.sort((a,b)=>(Number(b.amount)||0)-(Number(a.amount)||0));
+  if(sortMode==='amount_asc') txs.sort((a,b)=>(Number(a.amount)||0)-(Number(b.amount)||0));
+  if(!txs.length){body.innerHTML='<div class="empty"><div class="empty-title">No transactions found</div><div class="empty-sub">Try adjusting your search or filter</div></div>';return;}
+  const inSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+  const exSVG=`<svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+  body.innerHTML=txs.map(t=>{
+    const p=PLATFORMS[t.platform]||PLATFORMS['—'];
+    const badge=t.type==='income'
+      ?`<div class="tx-pllogo" style="background:${p.bg}">${p.logo}</div>`
+      :`<div class="tx-badge ex">${exSVG}</div>`;
+    return `<div class="tx-row"><div class="tx-nw">${badge}<div><div class="tx-name">${t.desc}</div><div class="tx-meta">${t.category} · ${t.bizper}</div></div></div><div class="tx-cell">${t.platform}</div><div class="tx-cell">${fmtDate(t.date)}</div><div class="tx-amount ${t.type==='income'?'pos':'neg'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div><div class="tx-actions"><button class="tx-btn" onclick="editTx(${t.id})">Edit</button></div></div>`;
+  }).join('');
+  const cnt=document.getElementById('tx-count');if(cnt)cnt.textContent=transactions.length;
+}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+function showPage(page){
+  if(!authState.isAuthenticated){
+    showScreen('screen-login');
+    return;
+  }
+  document.querySelectorAll('.main > .page').forEach(p=>p.style.display='none');
+  const target=document.getElementById('page-'+page);
+  if(target){target.style.display='block';void target.offsetWidth;target.className='page';}
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  if(page==='dashboard'){ renderDashboard(); setTimeout(()=>{ renderTrend(); renderSplitDonut(); },50); }
+  if(page==='transactions') renderTxTable();
+  if(page==='analytics') setTimeout(renderAnalyticsCharts, 50);
+  if(page==='income') renderIncomeMetrics();
+  if(page==='expenses') renderExpenseMetrics();
+  if(page==='pnl') renderPLPage();
+  if(page==='health') setTimeout(renderHealthPage, 50);
+  if(page==='feedback') renderFeedbackList();
+  if(page==='tax'){ const el=document.getElementById('tax-income'); if(el) el.textContent=fmt(getIncome(transactions)); }
+}
+document.querySelectorAll('.nav-item[data-page]').forEach(n=>n.addEventListener('click',()=>showPage(n.dataset.page)));
+
+/* ═══════════════════════════════════════════
+   FILTER / SORT
+═══════════════════════════════════════════ */
+function setFilter(f){currentFilter=f;['all','income','expense'].forEach(x=>{const b=document.getElementById('filter-'+x);if(b)b.classList.toggle('active',x===f);});renderTxTable();}
+function toggleSort(){
+  const order=['date_desc','date_asc','amount_desc','amount_asc'];
+  const labels={
+    date_desc:'Date: newest',
+    date_asc:'Date: oldest',
+    amount_desc:'Amount: high-low',
+    amount_asc:'Amount: low-high'
+  };
+  const idx=order.indexOf(sortMode);
+  sortMode=order[(idx+1)%order.length];
+  document.getElementById('sort-btn').textContent=labels[sortMode];
+  renderTxTable();
+}
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function openModal(defaultType){
+  setModalType(defaultType||'income');
+  document.getElementById('f-amount').value='';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('modal-save-btn').textContent='Save transaction';
+  document.getElementById('modal-save-btn').onclick=saveTransaction;
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(()=>document.getElementById('f-amount').focus(),80);
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+function setModalType(type){
+  modalType=type;
+  document.getElementById('btn-income').className='type-btn '+(type==='income'?'t-inc':'t-off');
+  document.getElementById('btn-expense').className='type-btn '+(type==='expense'?'t-exp':'t-off');
+}
+function saveTransaction(){
+  const amount=parseFloat(document.getElementById('f-amount').value);
+  const desc=document.getElementById('f-desc').value.trim();
+  const date=document.getElementById('f-date').value;
+  const platform=document.getElementById('f-platform').value;
+  const category=document.getElementById('f-category').value;
+  const bizper=document.getElementById('f-bizper').value;
+  if(!amount||amount<=0||!desc||!date){showToast('Please fill all required fields',true);return;}
+  transactions.unshift({id:nextId++,type:modalType,desc,platform,category,bizper,amount,date});
+  saveTransactions();
+  closeModal();showToast('Transaction saved');
+  const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
+}
+function deleteTx(id){transactions=transactions.filter(t=>t.id!==id);saveTransactions();const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);showToast('Transaction removed');}
+function editTx(id){
+  const t=transactions.find(t=>t.id===id);if(!t)return;
+  setModalType(t.type);
+  document.getElementById('f-amount').value=t.amount;
+  document.getElementById('f-desc').value=t.desc;
+  document.getElementById('f-date').value=t.date;
+  document.getElementById('f-platform').value=t.platform;
+  document.getElementById('f-category').value=t.category;
+  document.getElementById('f-bizper').value=t.bizper;
+  const btn=document.getElementById('modal-save-btn');
+  btn.textContent='Update transaction';
+  btn.onclick=()=>{
+    const amount=parseFloat(document.getElementById('f-amount').value);
+    const desc=document.getElementById('f-desc').value.trim();
+    const date=document.getElementById('f-date').value;
+    if(!amount||!desc||!date){showToast('Please fill all required fields',true);return;}
+    const idx=transactions.findIndex(tx=>tx.id===id);
+    if(idx>-1)transactions[idx]={...transactions[idx],type:modalType,amount,desc,date,platform:document.getElementById('f-platform').value,category:document.getElementById('f-category').value,bizper:document.getElementById('f-bizper').value};
+    saveTransactions();
+    closeModal();btn.textContent='Save transaction';btn.onclick=saveTransaction;
+    const active=document.querySelector('.nav-item.active');if(active)showPage(active.dataset.page);
+    showToast('Transaction updated');
+  };
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+function showToast(msg,isErr){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  document.getElementById('toast-dot').className='toast-dot'+(isErr?' err':'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ═══════════════════════════════════════════
+   THEME + FRONTEND PERSISTENCE
+═══════════════════════════════════════════ */
+const LS_KEYS={
+  transactions:'moneyhub_transactions',
+  profile:'moneyhub_profile',
+  theme:'moneyhub_theme',
+  feedback:'moneyhub_feedback',
+  users:'moneyhub_users',
+  session:'moneyhub_session',
+  userData:'moneyhub_user_data'
+};
+
+function getUserDataStore(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEYS.userData)||'{}'); }
+  catch(e){ return {}; }
+}
+
+function saveUserDataStore(store){
+  localStorage.setItem(LS_KEYS.userData, JSON.stringify(store));
+}
+
+function loadUserScopedState(email){
+  const store=getUserDataStore();
+  const scoped=store[email];
+  if(scoped){
+    transactions=Array.isArray(scoped.transactions)?scoped.transactions:[];
+    nextId=Math.max(...transactions.map(t=>t.id),0)+1;
+    if(scoped.profile && typeof scoped.profile==='object') Object.assign(profile, scoped.profile);
+    return;
+  }
+  transactions=[];
+  nextId=1;
+}
+
+function saveUserScopedState(){
+  if(!authState.userEmail) return;
+  const store=getUserDataStore();
+  store[authState.userEmail]={
+    transactions,
+    nextId,
+    profile
+  };
+  saveUserDataStore(store);
+}
+
+function saveTransactions(){
+  saveUserScopedState();
+}
+
+function saveProfile(){
+  saveUserScopedState();
+}
+
+function toggleTheme(){
+  appTheme = appTheme==='dark' ? 'light' : 'dark';
+  applyTheme();
+}
+
+function applyTheme(){
+  document.body.classList.toggle('theme-dark', appTheme==='dark');
+  const sw=document.getElementById('theme-switch');
+  if(sw) sw.classList.toggle('on', appTheme==='dark');
+  localStorage.setItem(LS_KEYS.theme, appTheme);
+}
+
+function loadAppState(){
+  try{
+    ensureDemoAlice();
+    const activeSession=localStorage.getItem(LS_KEYS.session);
+    if(activeSession){
+      authState.isAuthenticated=true;
+      authState.userEmail=activeSession;
+      loadUserScopedState(activeSession);
+      const matched=getUsers().find(u=>u.email===activeSession);
+      if(matched && !profile.name){
+        profile.name=((matched.first||'')+' '+(matched.last||'')).trim();
+      }
+    }
+    appTheme=localStorage.getItem(LS_KEYS.theme)||'light';
+  }catch(e){
+    console.warn('Could not load app state', e);
+  }
+}
+
+function saveFeedback(){
+  const name=document.getElementById('fb-name').value.trim();
+  const email=document.getElementById('fb-email').value.trim();
+  const message=document.getElementById('fb-message').value.trim();
+  if(!name||!email||!message){showToast('Please fill all feedback fields', true);return;}
+  const list=JSON.parse(localStorage.getItem(LS_KEYS.feedback)||'[]');
+  list.unshift({name,email,message,createdAt:new Date().toISOString()});
+  localStorage.setItem(LS_KEYS.feedback, JSON.stringify(list));
+  document.getElementById('fb-name').value='';
+  document.getElementById('fb-email').value='';
+  document.getElementById('fb-message').value='';
+  renderFeedbackList();
+  showToast('Feedback saved locally');
+}
+
+function renderFeedbackList(){
+  const listEl=document.getElementById('feedback-list');
+  if(!listEl) return;
+  const list=JSON.parse(localStorage.getItem(LS_KEYS.feedback)||'[]');
+  if(!list.length){
+    listEl.innerHTML='<div class="empty"><div class="empty-title">No feedback yet</div><div class="empty-sub">Your submitted feedback will appear here</div></div>';
+    return;
+  }
+  listEl.innerHTML=list.slice(0,8).map(item=>`<div style="padding:10px 0;border-bottom:1px solid var(--s2);"><div style="font-size:12px;font-weight:600;color:var(--black);">${item.name} · ${item.email}</div><div style="font-size:11px;color:var(--s5);margin:4px 0;">${item.message}</div><div style="font-size:10px;color:var(--s4);">${new Date(item.createdAt).toLocaleString()}</div></div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+document.querySelectorAll('.sub-tabs').forEach(w=>{
+  if(w.id==='dashboard-tabs') return;
+  w.querySelectorAll('.stab').forEach(t=>t.addEventListener('click',function(){
+    w.querySelectorAll('.stab').forEach(s=>s.classList.remove('active'));
+    this.classList.add('active');
+  }));
+});
+
+// Safe getElementById helpers — won't crash if element hidden/missing
+function safeOn(id, evt, fn){ const el=document.getElementById(id); if(el) el.addEventListener(evt,fn); }
+
+safeOn('modal-bg','click',function(e){if(e.target===this)closeModal();});
+safeOn('lang-modal-bg','click',function(e){if(e.target===this)closeLangModal();});
+safeOn('export-btn','click',()=>{
+  const rows=[['Type','Description','Platform','Category','Business/Personal','Amount','Date']];
+  transactions.forEach(t=>rows.push([t.type,t.desc,t.platform,t.category,t.bizper,t.amount,t.date]));
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='MoneyHub-export.csv';a.click();
+  showToast('CSV exported');
+});
+
+/* ═══════════════════════════════════════════
+   INIT — start on login screen
+═══════════════════════════════════════════ */
+loadAppState();
+applyTheme();
+showScreen('screen-login');
+</script>
+</body>
+</html>
